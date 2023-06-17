@@ -1,0 +1,51 @@
+## @file
+#  RISC-V EFI Boot DXE module.
+#
+#  Copyright (c) 2023. All rights reserved.<BR>
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+##
+
+[Defines]
+  INF_VERSION               = 0x0001001b
+  BASE_NAME                 = BootDxe
+  FILE_GUID                 = b1a337f6-ffdc-f2c1-f494-c9f61edcf04d
+  MODULE_TYPE               = DXE_DRIVER
+  VERSION_STRING            = 1.0
+  ENTRY_POINT               = BootDxeInitialize
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES      = RISCV64
+#
+
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/RISC-V/ProcessorPkg/RiscVProcessorPkg.dec
+  Platform/RISC-V/PlatformPkg/RiscVPlatformPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  RiscVFirmwareContextLib
+
+[Sources]
+  BootDxe.c
+  RiscVEfiBoot.h
+
+[Guids]
+  gRiscVEfiBootProtocolGuid
+
+[Pcd]
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdBootHartId  ## CONSUMES
+
+[Depex]
+  TRUE

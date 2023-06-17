@@ -1,0 +1,7 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/i2c/i2c.o: /home/zzy/kingdom_opensbi/opensbi/lib/utils/i2c/i2c.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_error.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall_interface.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/i2c/i2c.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_list.h

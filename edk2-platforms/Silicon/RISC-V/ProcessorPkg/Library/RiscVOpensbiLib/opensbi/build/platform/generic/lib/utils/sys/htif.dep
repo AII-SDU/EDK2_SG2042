@@ -1,0 +1,10 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/sys/htif.o: /home/zzy/kingdom_opensbi/opensbi/lib/utils/sys/htif.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_locks.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_console.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_error.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall_interface.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_system.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_list.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/sys/htif.h

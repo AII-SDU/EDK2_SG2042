@@ -1,0 +1,11 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/serial/fdt_serial_cadence.o: \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/serial/fdt_serial_cadence.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/fdt/fdt_helper.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_domain.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_hartmask.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitmap.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitops.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/serial/fdt_serial.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/serial/cadence-uart.h

@@ -1,0 +1,5 @@
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_bitmap.o: /home/zzy/kingdom_opensbi/opensbi/lib/sbi/sbi_bitmap.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitmap.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitops.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h

@@ -1,0 +1,15 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/fdt_ipi.o: /home/zzy/kingdom_opensbi/opensbi/lib/utils/ipi/fdt_ipi.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_error.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall_interface.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_scratch.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_asm.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/fdt/fdt_helper.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_domain.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_hartmask.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitmap.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitops.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/ipi/fdt_ipi.h

@@ -1,0 +1,11 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/firmware/fw_dynamic.o: /home/zzy/kingdom_opensbi/opensbi/firmware/fw_dynamic.S \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/fw_dynamic.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_asm.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h \
+ /home/zzy/kingdom_opensbi/opensbi/firmware/fw_base.S \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_elf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_platform.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_scratch.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_trap.h

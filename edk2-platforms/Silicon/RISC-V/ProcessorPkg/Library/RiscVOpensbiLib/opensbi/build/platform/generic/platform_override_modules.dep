@@ -1,0 +1,4 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/platform_override_modules.c: /home/zzy/kingdom_opensbi/opensbi/platform/generic/platform_override_modules.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/platform_override_modules.o: /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/platform_override_modules.c
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/platform_override_modules.c: /home/zzy/kingdom_opensbi/opensbi/platform/generic/platform_override_modules.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/platform_override_modules.o: /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/platform_override_modules.c

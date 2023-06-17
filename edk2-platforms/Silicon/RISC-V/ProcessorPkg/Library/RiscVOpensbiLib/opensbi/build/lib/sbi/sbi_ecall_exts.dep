@@ -1,0 +1,4 @@
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_ecall_exts.c: /home/zzy/kingdom_opensbi/opensbi/lib/sbi/sbi_ecall_exts.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_ecall_exts.o: /home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_ecall_exts.c
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_ecall_exts.c: /home/zzy/kingdom_opensbi/opensbi/lib/sbi/sbi_ecall_exts.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_ecall_exts.o: /home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_ecall_exts.c

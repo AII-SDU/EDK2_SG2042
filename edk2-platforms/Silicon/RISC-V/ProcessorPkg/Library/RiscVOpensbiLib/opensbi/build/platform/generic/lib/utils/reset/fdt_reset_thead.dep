@@ -1,0 +1,25 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/reset/fdt_reset_thead.o: \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/reset/fdt_reset_thead.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/libfdt.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/libfdt_env.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_string.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_byteorder.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/fdt.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_io.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_barrier.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitops.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_hart.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_scratch.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_asm.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_system.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_list.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/fdt/fdt_helper.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_domain.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_hartmask.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitmap.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/reset/fdt_reset.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/reset/fdt_reset_thead.h

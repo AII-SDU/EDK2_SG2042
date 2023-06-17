@@ -1,0 +1,2 @@
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/riscv_hardfp.o: /home/zzy/kingdom_opensbi/opensbi/lib/sbi/riscv_hardfp.S \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h

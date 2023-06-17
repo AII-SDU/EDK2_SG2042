@@ -1,0 +1,23 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/sophgo/mango.o: \
+ /home/zzy/kingdom_opensbi/opensbi/platform/generic/sophgo/mango.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/platform/generic/include/platform_override.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_hart.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_trap.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h \
+ /home/zzy/kingdom_opensbi/opensbi/platform/generic/include/thead_c9xx.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_asm.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall_interface.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_pmu.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_domain.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_hartmask.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitmap.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitops.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_platform.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_error.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_scratch.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_version.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/fdt/fdt_helper.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/timer/aclint_mtimer.h

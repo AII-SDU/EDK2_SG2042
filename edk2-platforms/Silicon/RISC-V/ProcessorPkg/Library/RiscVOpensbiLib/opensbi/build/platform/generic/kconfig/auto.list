@@ -1,0 +1,16 @@
+/home/zzy/kingdom_opensbi/opensbi/Kconfig
+platform/generic/Kconfig
+platform/generic/andes/Kconfig
+lib/sbi/Kconfig
+lib/utils/Kconfig
+lib/utils/fdt/Kconfig
+lib/utils/gpio/Kconfig
+lib/utils/i2c/Kconfig
+lib/utils/ipi/Kconfig
+lib/utils/irqchip/Kconfig
+lib/utils/libfdt/Kconfig
+lib/utils/reset/Kconfig
+lib/utils/serial/Kconfig
+lib/utils/sys/Kconfig
+lib/utils/timer/Kconfig
+firmware/Kconfig

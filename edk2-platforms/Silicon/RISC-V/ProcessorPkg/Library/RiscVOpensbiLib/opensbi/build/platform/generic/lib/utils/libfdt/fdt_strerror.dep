@@ -1,0 +1,11 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/libfdt/fdt_strerror.o: \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/fdt_strerror.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/libfdt_env.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_string.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_byteorder.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/fdt.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/libfdt.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/libfdt_env.h \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/libfdt/libfdt_internal.h

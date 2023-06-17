@@ -1,0 +1,6 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/andes/sleep.o: /home/zzy/kingdom_opensbi/opensbi/platform/generic/andes/sleep.S \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_asm.h \
+ /home/zzy/kingdom_opensbi/opensbi/platform/generic/include/andes/andes45.h

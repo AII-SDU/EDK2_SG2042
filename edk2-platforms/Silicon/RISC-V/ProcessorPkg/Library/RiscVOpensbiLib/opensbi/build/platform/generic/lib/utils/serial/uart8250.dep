@@ -1,0 +1,7 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/serial/uart8250.o: /home/zzy/kingdom_opensbi/opensbi/lib/utils/serial/uart8250.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_io.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_barrier.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_console.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/serial/uart8250.h

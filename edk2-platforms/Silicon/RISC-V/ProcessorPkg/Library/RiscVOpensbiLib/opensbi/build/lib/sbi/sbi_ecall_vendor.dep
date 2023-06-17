@@ -1,0 +1,15 @@
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_ecall_vendor.o: \
+ /home/zzy/kingdom_opensbi/opensbi/lib/sbi/sbi_ecall_vendor.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_list.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall_interface.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_error.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_platform.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_scratch.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_asm.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_version.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_trap.h

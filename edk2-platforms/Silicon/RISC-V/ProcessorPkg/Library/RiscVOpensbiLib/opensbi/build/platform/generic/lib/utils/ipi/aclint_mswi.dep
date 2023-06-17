@@ -1,0 +1,19 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/aclint_mswi.o: \
+ /home/zzy/kingdom_opensbi/opensbi/lib/utils/ipi/aclint_mswi.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_asm.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_atomic.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_io.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_barrier.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_domain.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_hartmask.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitmap.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_bitops.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_error.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall_interface.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ipi.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_timer.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi_utils/ipi/aclint_mswi.h

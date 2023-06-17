@@ -1,0 +1,8 @@
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/sbi_fifo.o: /home/zzy/kingdom_opensbi/opensbi/lib/sbi/sbi_fifo.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_locks.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_error.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_ecall_interface.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_fifo.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_string.h

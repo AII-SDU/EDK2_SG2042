@@ -1,0 +1,4 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/i2c/fdt_i2c_adapter_drivers.c: /home/zzy/kingdom_opensbi/opensbi/lib/utils/i2c/fdt_i2c_adapter_drivers.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/i2c/fdt_i2c_adapter_drivers.o: /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/i2c/fdt_i2c_adapter_drivers.c
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/i2c/fdt_i2c_adapter_drivers.c: /home/zzy/kingdom_opensbi/opensbi/lib/utils/i2c/fdt_i2c_adapter_drivers.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/i2c/fdt_i2c_adapter_drivers.o: /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/i2c/fdt_i2c_adapter_drivers.c

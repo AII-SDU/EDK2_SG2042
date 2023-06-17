@@ -1,0 +1,5 @@
+/home/zzy/kingdom_opensbi/opensbi/build/lib/sbi/riscv_locks.o: /home/zzy/kingdom_opensbi/opensbi/lib/sbi/riscv_locks.c \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_barrier.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_locks.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_types.h

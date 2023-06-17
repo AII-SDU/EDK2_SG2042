@@ -1,0 +1,4 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/fdt_ipi_drivers.c: /home/zzy/kingdom_opensbi/opensbi/lib/utils/ipi/fdt_ipi_drivers.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/fdt_ipi_drivers.o: /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/fdt_ipi_drivers.c
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/fdt_ipi_drivers.c: /home/zzy/kingdom_opensbi/opensbi/lib/utils/ipi/fdt_ipi_drivers.carray /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/.config
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/fdt_ipi_drivers.o: /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/lib/utils/ipi/fdt_ipi_drivers.c

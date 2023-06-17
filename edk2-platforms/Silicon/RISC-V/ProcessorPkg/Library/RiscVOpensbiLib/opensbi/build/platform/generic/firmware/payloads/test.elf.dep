@@ -1,0 +1,3 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/firmware/payloads/test.elf.ld: \
+ /home/zzy/kingdom_opensbi/opensbi/firmware/payloads/test.elf.ldS \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h

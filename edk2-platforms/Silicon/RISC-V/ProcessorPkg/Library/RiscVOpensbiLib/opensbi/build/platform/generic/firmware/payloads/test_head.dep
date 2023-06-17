@@ -1,0 +1,5 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/firmware/payloads/test_head.o: \
+ /home/zzy/kingdom_opensbi/opensbi/firmware/payloads/test_head.S \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/riscv_encoding.h \
+ /home/zzy/kingdom_opensbi/opensbi/include/sbi/sbi_const.h

@@ -1,0 +1,4 @@
+/home/zzy/kingdom_opensbi/opensbi/build/platform/generic/firmware/fw_dynamic.elf.ld: \
+ /home/zzy/kingdom_opensbi/opensbi/firmware/fw_dynamic.elf.ldS \
+ /home/zzy/kingdom_opensbi/opensbi/build/platform/generic/kconfig/autoconf.h \
+ /home/zzy/kingdom_opensbi/opensbi/firmware/fw_base.ldS
