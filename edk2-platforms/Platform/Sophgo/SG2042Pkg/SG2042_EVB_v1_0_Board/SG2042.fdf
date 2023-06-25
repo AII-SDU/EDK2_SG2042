@@ -117,7 +117,7 @@ INF  MdeModulePkg/Universal/StatusCodeHandler/Pei/StatusCodeHandlerPei.inf
 INF  MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
 
 # RISC-V Platform PEI Driver
-INF  Platform/RISC-V/PlatformPkg/Universal/Pei/PlatformPei/PlatformPei.inf
+INF  Platform/Sophgo/SG2042Pkg/Pei/PlatformPei/PlatformPei.inf
 INF  Platform/RISC-V/PlatformPkg/Universal/FdtPeim/FdtPeim.inf
 
 ################################################################################
@@ -169,8 +169,8 @@ INF  Platform/Sophgo/SG2042Pkg/Universal/Dxe/MmcDxe/MmcDxe.inf
 INF  Platform/Sophgo/SG2042Pkg/Universal/Dxe/SdHostDxe/SdHostDxe.inf
 
 # RISC-V Core Drivers
-INF  Platform/Sophgo/SG2042Pkg/Universal/Dxe/TimerDxe/TimerDxe.inf
-INF  Silicon/RISC-V/ProcessorPkg/Universal/CpuDxe/CpuDxe.inf
+INF  UefiCpuPkg/CpuTimerDxeRiscV64/CpuTimerDxeRiscV64.inf
+INF  UefiCpuPkg/CpuDxeRiscV64/CpuDxeRiscV64.inf
 INF  Silicon/RISC-V/ProcessorPkg/Universal/SmbiosDxe/RiscVSmbiosDxe.inf
 
 INF  MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
@@ -201,7 +201,6 @@ INF  MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
 INF  MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe.inf
 INF  FatPkg/EnhancedFatDxe/Fat.inf
 INF  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
-INF  Silicon/RISC-V/ProcessorPkg/Universal/BootDxe/BootDxe.inf
 INF  Silicon/RISC-V/ProcessorPkg/Universal/FdtDxe/FdtDxe.inf
 
 !ifndef $(SOURCE_DEBUG_ENABLE)

@@ -28,7 +28,7 @@
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   Platform/Sophgo/SG2042Pkg/SG2042Pkg.dec
-  Silicon/SiFive/SiFive.dec
+  Silicon/Sophgo/SiFive.dec
   Platform/RISC-V/PlatformPkg/RiscVPlatformPkg.dec
   Silicon/RISC-V/ProcessorPkg/RiscVProcessorPkg.dec
 

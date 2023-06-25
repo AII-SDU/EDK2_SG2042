@@ -109,7 +109,6 @@
   RealTimeClockLib|EmbeddedPkg//Library/VirtualRealTimeClockLib/VirtualRealTimeClockLib.inf
 
 # RISC-V Core Library
-  RiscVOpensbiLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVOpensbiLib/RiscVOpensbiLib.inf
 
 !ifdef $(SOURCE_DEBUG_ENABLE)
   PeCoffExtraActionLib|SourceLevelDebugPkg/Library/PeCoffExtraActionLibDebug/PeCoffExtraActionLibDebug.inf
@@ -149,11 +148,11 @@
   BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
 !endif
   RiscVCpuLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVCpuLib/RiscVCpuLib.inf
-  RiscVEdk2SbiLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVEdk2SbiLib/RiscVEdk2SbiLib.inf
+  RiscVSbiLib|MdePkg/Library/BaseRiscVSbiLib/BaseRiscVSbiLib.inf
   RiscVPlatformTimerLib|Platform/Sophgo/SG2042Pkg/Library/RiscVPlatformTimerLib/RiscVPlatformTimerLib.inf
   #MachineModeTimerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVReadMachineModeTimer/MachineModeTimerLib/MachineModeTimerLib.inf
   MachineModeTimerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVReadMachineModeTimer/EmulatedMachineModeTimerLib/EmulatedMachineModeTimerLib.inf
-  CpuExceptionHandlerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVExceptionLib/CpuExceptionHandlerDxeLib.inf
+  CpuExceptionHandlerLib|UefiCpuPkg/Library/BaseRiscV64CpuExceptionHandlerLib/BaseRiscV64CpuExceptionHandlerLib.inf
 
 
   # Flattened Device Tree (FDT) access library
@@ -180,7 +179,7 @@
 #
 # OpenSBi Platform Library
 #
-  RiscVOpensbiPlatformLib|Platform/RISC-V/PlatformPkg/Library/OpensbiPlatformLib/OpensbiPlatformLib.inf
+  # RiscVOpensbiPlatformLib|Platform/RISC-V/PlatformPkg/Library/OpensbiPlatformLib/OpensbiPlatformLib.inf
 
   RiscVFirmwareContextLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVFirmwareContextSscratchLib/RiscVFirmwareContextSscratchLib.inf
 
@@ -201,7 +200,6 @@
   PeCoffLib|MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf
   # RISC-V platform PEI core entry point.
   PeiCoreEntryPoint|MdePkg/Library/PeiCoreEntryPoint/PeiCoreEntryPoint.inf
-  # PeiCoreEntryPoint|Platform/RISC-V/PlatformPkg/Library/PeiCoreEntryPoint/PeiCoreEntryPoint.inf
   # PlatformSecPpiLib|Platform/Sophgo/SG2042Pkg/Library/PlatformSecPpiLib/PlatformSecPpiLib.inf
 
 [LibraryClasses.common.PEIM]
@@ -234,7 +232,7 @@
   RiscVCoreplexInfoLib|Platform/Sophgo/SG2042Pkg/Library/PeiCoreInfoHobLib/PeiCoreInfoHobLib.inf
 
 [LibraryClasses.common.DXE_CORE]
-  TimerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVTimerLib/BaseRiscVTimerLib.inf
+  TimerLib|UefiCpuPkg/Library/BaseRiscV64CpuTimerLib/BaseRiscV64CpuTimerLib.inf
   HobLib|MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf
   DxeCoreEntryPoint|MdePkg/Library/DxeCoreEntryPoint/DxeCoreEntryPoint.inf
   MemoryAllocationLib|MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf
@@ -251,12 +249,13 @@
 
 [LibraryClasses.common.DXE_RUNTIME_DRIVER]
   PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
-  TimerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVTimerLib/BaseRiscVTimerLib.inf
+  TimerLib|UefiCpuPkg/Library/BaseRiscV64CpuTimerLib/BaseRiscV64CpuTimerLib.inf
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   DxeCoreEntryPoint|MdePkg/Library/DxeCoreEntryPoint/DxeCoreEntryPoint.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/RuntimeDxeReportStatusCodeLib/RuntimeDxeReportStatusCodeLib.inf
-  ResetSystemLib|Platform/RISC-V/PlatformPkg/Library/ResetSystemLib/ResetSystemLib.inf
+  ResetSystemLib|Platform/Sophgo/SG2042Pkg/Library/ResetSystemLib/BaseResetSystemLib.inf
+  # ResetSystemLib|Platform/RISC-V/PlatformPkg/Library/ResetSystemLib/ResetSystemLib.inf
   UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
 !ifdef $(DEBUG_ON_SERIAL_PORT)
   DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
@@ -271,7 +270,7 @@
 
 [LibraryClasses.common.UEFI_DRIVER]
   PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
-  TimerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVTimerLib/BaseRiscVTimerLib.inf
+  TimerLib|UefiCpuPkg/Library/BaseRiscV64CpuTimerLib/BaseRiscV64CpuTimerLib.inf
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   DxeCoreEntryPoint|MdePkg/Library/DxeCoreEntryPoint/DxeCoreEntryPoint.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
@@ -286,7 +285,7 @@
 
 [LibraryClasses.common.DXE_DRIVER]
   PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
-  TimerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVTimerLib/BaseRiscVTimerLib.inf
+  TimerLib|UefiCpuPkg/Library/BaseRiscV64CpuTimerLib/BaseRiscV64CpuTimerLib.inf
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
@@ -304,11 +303,9 @@
   PlatformMemoryTestLib|Platform/RISC-V/PlatformPkg/Library/PlatformMemoryTestLibNull/PlatformMemoryTestLibNull.inf
   PlatformUpdateProgressLib|Platform/RISC-V/PlatformPkg/Library/PlatformUpdateProgressLibNull/PlatformUpdateProgressLibNull.inf
 
-  RiscVFirmwareContextLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVFirmwareContextSscratchLib/RiscVFirmwareContextSscratchLib.inf
-
 [LibraryClasses.common.UEFI_APPLICATION]
   PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
-  TimerLib|Silicon/RISC-V/ProcessorPkg/Library/RiscVTimerLib/BaseRiscVTimerLib.inf
+  TimerLib|UefiCpuPkg/Library/BaseRiscV64CpuTimerLib/BaseRiscV64CpuTimerLib.inf
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
 !ifdef $(DEBUG_ON_SERIAL_PORT)
@@ -398,7 +395,6 @@
   #
   # SEC Phase modules
   #
-  # Platform/RISC-V/PlatformPkg/Universal/Sec/SecMain.inf
   Platform/Sophgo/SG2042Pkg/Sec/SecMain.inf
 
   #
@@ -416,7 +412,7 @@
     NULL|MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf
   }
 
-  Platform/RISC-V/PlatformPkg/Universal/Pei/PlatformPei/PlatformPei.inf {
+  Platform/Sophgo/SG2042Pkg/Pei/PlatformPei/PlatformPei.inf {
     <LibraryClasses>
       PcdLib|MdePkg/Library/PeiPcdLib/PeiPcdLib.inf
   }
@@ -466,7 +462,7 @@
   #
   # RISC-V Platform module
   #
-  Platform/Sophgo/SG2042Pkg/Universal/Dxe/TimerDxe/TimerDxe.inf
+  UefiCpuPkg/CpuTimerDxeRiscV64/CpuTimerDxeRiscV64.inf
   Platform/Sophgo/SG2042Pkg/Universal/Dxe/RamFvbServicesRuntimeDxe/FvbServicesRuntimeDxe.inf
   Platform/Sophgo/SG2042Pkg/Universal/Dxe/MmcDxe/MmcDxe.inf
   Platform/Sophgo/SG2042Pkg/Universal/Dxe/SdHostDxe/SdHostDxe.inf
@@ -474,7 +470,7 @@
   #
   # RISC-V Core module
   #
-  Silicon/RISC-V/ProcessorPkg/Universal/CpuDxe/CpuDxe.inf
+  UefiCpuPkg/CpuDxeRiscV64/CpuDxeRiscV64.inf
   Silicon/RISC-V/ProcessorPkg/Universal/SmbiosDxe/RiscVSmbiosDxe.inf
   MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
 
@@ -535,7 +531,6 @@
   MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
 
-  Silicon/RISC-V/ProcessorPkg/Universal/BootDxe/BootDxe.inf
   Silicon/RISC-V/ProcessorPkg/Universal/FdtDxe/FdtDxe.inf
 
   #

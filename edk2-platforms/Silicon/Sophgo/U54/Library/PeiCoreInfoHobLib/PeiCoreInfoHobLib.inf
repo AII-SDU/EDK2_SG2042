@@ -38,7 +38,7 @@
   MemoryAllocationLib
   PrintLib
   FirmwareContextProcessorSpecificLib
-  RiscVEdk2SbiLib
+  RiscVSbiLib
 
 [FixedPcd]
   gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSpecificDataGuidHobGuid

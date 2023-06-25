@@ -8,7 +8,7 @@
 **/
 
 #include "Timer.h"
-#include <Library/RiscVEdk2SbiLib.h>
+#include <Library/BaseRiscVSbiLib.h>
 #include <sbi/riscv_asm.h>
 #include <sbi/riscv_encoding.h>
 #include <sbi/riscv_io.h>
