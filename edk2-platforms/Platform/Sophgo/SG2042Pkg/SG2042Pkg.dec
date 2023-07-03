@@ -1,5 +1,5 @@
 ## @file  U5SeriesPkg.dec
-# This Package provides modules and libraries.for SiFive U5 series platforms.
+# This Package provides modules and libraries.for Sophgo SG2042 platform.
 #
 # Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
 #
@@ -26,10 +26,7 @@
   gSophgoSG2042PlatformsPkgTokenSpaceGuid  = {0x725B804B, 0x10B5, 0x4326, { 0xAD, 0xFF, 0x59, 0xCE, 0x6E, 0xFD, 0x5B, 0x36 }}
 
 [PcdsFixedAtBuild]
-  # gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdU5PlatformSystemClock|0x0|UINT32|0x00001000
-  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofU5Cores|0x8|UINT32|0x00001001
-  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdE5MCSupported|TRUE|BOOLEAN|0x00001002
-  # gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdU5UartBase|0x0|UINT64|0x00001003
+  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores|0x8|UINT32|0x00001001
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x0|UINT64|0x00001004
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|0x0|UINT64|0x00001005
   gHisiTokenSpaceGuid.PcdSerialPortSendDelay|0x0|UINT32|0x00001006

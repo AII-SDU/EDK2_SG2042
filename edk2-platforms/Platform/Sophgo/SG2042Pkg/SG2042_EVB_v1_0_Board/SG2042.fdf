@@ -1,5 +1,5 @@
 # @file
-#  Flash definition file on SiFive Freedom U540 HiFive Unleashed RISC-V platform
+#  Flash definition file on Sophgo SG2042 EVB RISC-V platform
 #
 #  Copyright (c) 2019-2021, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
 #
@@ -20,106 +20,12 @@ ErasePolarity = 1
 BlockSize     = $(BLOCK_SIZE)
 NumBlocks     = $(FW_BLOCKS)
 
-#
-# UEFI has trouble dealing with FVs that reside at physical address 0x0.
-# So instead, put a hardcoded 'jump to 0x1000' at offset 0x0, and put the
-# real FV at offset 0x1000
-#
-# 0x00000000|0x00001000
-# DATA = {
-# !if $(ARCH) == RISCV64
-#  0x6F, 0x10, 0x00, 0x00  # 'b 0x1000' in RV64 ASM
-# !else
-#  0xfe, 0x03, 0x00, 0xea  # 'b 0x1000' in RV32 ASM
-# !endif
-# }
-
-$(SECFV_OFFSET)|$(SECFV_SIZE)
-gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVSecFvBase|gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVSecFvSize
-FV = SECFV
-
-$(PEIFV_OFFSET)|$(PEIFV_SIZE)
-gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVPeiFvBase|gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVPeiFvSize
-FV = PEIFV
-
 
 $(FVMAIN_OFFSET)|$(FVMAIN_SIZE)
 gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvBase|gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvSize
 FV = FVMAIN_COMPACT
 
 !include VarStore.fdf.inc
-# !include DeviceTree.fdf.inc
-
-################################################################################
-
-[FV.SECFV]
-BlockSize          = 0x1000
-FvAlignment        = 16
-ERASE_POLARITY     = 1
-MEMORY_MAPPED      = TRUE
-STICKY_WRITE       = TRUE
-LOCK_CAP           = TRUE
-LOCK_STATUS        = TRUE
-WRITE_DISABLED_CAP = TRUE
-WRITE_ENABLED_CAP  = TRUE
-WRITE_STATUS       = TRUE
-WRITE_LOCK_CAP     = TRUE
-WRITE_LOCK_STATUS  = TRUE
-READ_DISABLED_CAP  = TRUE
-READ_ENABLED_CAP   = TRUE
-READ_STATUS        = TRUE
-READ_LOCK_CAP      = TRUE
-READ_LOCK_STATUS   = TRUE
-
-
-#
-# SEC Phase modules
-#
-# The code in this FV handles the initial firmware startup, and
-# decompresses the PEI and DXE FVs which handles the rest of the boot sequence.
-#
-# INF Platform/RISC-V/PlatformPkg/Universal/Sec/SecMain.inf
-INF Platform/Sophgo/SG2042Pkg/Sec/SecMain.inf
-
-################################################################################
-[FV.PEIFV]
-BlockSize          = 0x10000
-FvAlignment        = 16
-ERASE_POLARITY     = 1
-MEMORY_MAPPED      = TRUE
-STICKY_WRITE       = TRUE
-LOCK_CAP           = TRUE
-LOCK_STATUS        = TRUE
-WRITE_DISABLED_CAP = TRUE
-WRITE_ENABLED_CAP  = TRUE
-WRITE_STATUS       = TRUE
-WRITE_LOCK_CAP     = TRUE
-WRITE_LOCK_STATUS  = TRUE
-READ_DISABLED_CAP  = TRUE
-READ_ENABLED_CAP   = TRUE
-READ_STATUS        = TRUE
-READ_LOCK_CAP      = TRUE
-READ_LOCK_STATUS   = TRUE
-
-APRIORI PEI {
-  INF  MdeModulePkg/Universal/ReportStatusCodeRouter/Pei/ReportStatusCodeRouterPei.inf
-  INF  MdeModulePkg/Universal/StatusCodeHandler/Pei/StatusCodeHandlerPei.inf
-  INF  MdeModulePkg/Universal/PCD/Pei/Pcd.inf
-}
-
-#
-#  PEI Phase modules
-#
-INF  MdeModulePkg/Core/Pei/PeiMain.inf
-INF  MdeModulePkg/Universal/PCD/Pei/Pcd.inf
-INF  MdeModulePkg/Universal/ReportStatusCodeRouter/Pei/ReportStatusCodeRouterPei.inf
-INF  MdeModulePkg/Universal/StatusCodeHandler/Pei/StatusCodeHandlerPei.inf
-INF  MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
-
-# RISC-V Platform PEI Driver
-INF  Platform/Sophgo/SG2042Pkg/Pei/PlatformPei/PlatformPei.inf
-INF  Platform/RISC-V/PlatformPkg/Universal/FdtPeim/FdtPeim.inf
-
 ################################################################################
 
 [FV.DXEFV]
@@ -201,7 +107,7 @@ INF  MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
 INF  MdeModulePkg/Universal/MemoryTest/NullMemoryTestDxe/NullMemoryTestDxe.inf
 INF  FatPkg/EnhancedFatDxe/Fat.inf
 INF  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
-INF  Silicon/RISC-V/ProcessorPkg/Universal/FdtDxe/FdtDxe.inf
+INF  Platform/Sophgo/SG2042Pkg/Universal/Dxe/FdtDxe/FdtDxe.inf
 
 !ifndef $(SOURCE_DEBUG_ENABLE)
 INF MdeModulePkg/Universal/SerialDxe/SerialDxe.inf
@@ -255,6 +161,8 @@ READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 FvNameGuid         = 27A72E80-3118-4c0c-8673-AA5B4EFA9613
+
+INF Platform/Sophgo/SG2042Pkg/Sec/SecMain.inf
 
 FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
    SECTION GUIDED EE4E5898-3914-4259-9D6E-DC7BD79403CF PROCESSING_REQUIRED = TRUE {
@@ -346,9 +254,4 @@ FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
   FILE FREEFORM = $(NAMED_GUID) {
     RAW ACPI               |.acpi
     RAW ASL                |.aml
-  }
-
-[Rule.Common.USER_DEFINED.DTB]
-  FILE FREEFORM = $(NAMED_GUID) {
-    RAW BIN                |.dtb
   }

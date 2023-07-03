@@ -9,11 +9,11 @@
 
 [Defines]
   INF_VERSION                    = 0x0001001b
-  BASE_NAME                      = SiliconSiFiveU54CoreInfoLib
+  BASE_NAME                      = SiliconSophgoC920CoreInfoLib
   FILE_GUID                      = 483DE090-267E-4278-A0A1-15D9836780EA
   MODULE_TYPE                    = PEIM
   VERSION_STRING                 = 1.0
-  LIBRARY_CLASS                  = SiliconSiFiveU54CoreInfoLib
+  LIBRARY_CLASS                  = SiliconSophgoC920CoreInfoLib
 
 #
 # The following information is for reference only and not required by the build tools.
@@ -30,22 +30,17 @@
   Silicon/RISC-V/ProcessorPkg/RiscVProcessorPkg.dec
   Platform/RISC-V/PlatformPkg/RiscVPlatformPkg.dec
   Platform/Sophgo/SG2042Pkg/SG2042Pkg.dec
-  Silicon/Sophgo/SiFive.dec
+  Silicon/Sophgo/Sophgo.dec
 
 [LibraryClasses]
   BaseLib
   PcdLib
   MemoryAllocationLib
   PrintLib
-  FirmwareContextProcessorSpecificLib
-  RiscVSbiLib
 
 [FixedPcd]
-  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSpecificDataGuidHobGuid
   gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosGuidHobGuid
   gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType4GuidHobGuid
   gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType7GuidHobGuid
-  gEfiSiFiveSiliconTokenSpaceGuid.PcdSiFiveU54CoreGuid
-  gEfiSiFiveSiliconTokenSpaceGuid.PcdSiFiveU5MCCoreplexGuid
-  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofU5Cores
-  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdE5MCSupported
+  gEfiSophgoSiliconTokenSpaceGuid.PcdSophgoSG2042CoreplexGuid
+  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores

@@ -629,9 +629,6 @@ typedef struct {
 #define EXCEPT_RISCV_STORE_GUEST_PAGE_FAULT        23
 #define EXCEPT_RISCV_MAX_EXCEPTIONS                (EXCEPT_RISCV_STORE_GUEST_PAGE_FAULT)
 
-#define EXCEPT_RISCV_SOFTWARE_INT  0x0
-#define EXCEPT_RISCV_TIMER_INT     0x1
-
 ///
 /// RISC-V processor exception types for interrupts.
 ///
