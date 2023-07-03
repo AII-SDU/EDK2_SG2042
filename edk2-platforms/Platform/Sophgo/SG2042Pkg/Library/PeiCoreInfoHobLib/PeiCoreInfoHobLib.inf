@@ -9,7 +9,7 @@
 
 [Defines]
   INF_VERSION                    = 0x0001001b
-  BASE_NAME                      = SiliconSiFiveU5MCCoreplexInfoLib
+  BASE_NAME                      = SiliconSophgoSG2042CoreplexInfoLib
   FILE_GUID                      = 4E397A71-5164-4E69-9884-70CBE2740AAB
   MODULE_TYPE                    = PEIM
   VERSION_STRING                 = 1.0
@@ -28,7 +28,7 @@
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   Platform/Sophgo/SG2042Pkg/SG2042Pkg.dec
-  Silicon/Sophgo/SiFive.dec
+  Silicon/Sophgo/Sophgo.dec
   Platform/RISC-V/PlatformPkg/RiscVPlatformPkg.dec
   Silicon/RISC-V/ProcessorPkg/RiscVProcessorPkg.dec
 
@@ -37,8 +37,7 @@
   MemoryAllocationLib
   PcdLib
   PrintLib
-  RiscVFirmwareContextLib
-  SiliconSiFiveU54CoreInfoLib
+  SiliconSophgoC920CoreInfoLib
 
 [Guids]
   gSophgoSG2042PlatformsPkgTokenSpaceGuid
@@ -49,10 +48,4 @@
   gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosGuidHobGuid
   gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType4GuidHobGuid
   gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType7GuidHobGuid
-  gEfiSiFiveSiliconTokenSpaceGuid.PcdSiFiveU54CoreGuid
-  gEfiSiFiveSiliconTokenSpaceGuid.PcdSiFiveE51CoreGuid
-  gEfiSiFiveSiliconTokenSpaceGuid.PcdSiFiveU5MCCoreplexGuid
-  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofU5Cores
-  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdE5MCSupported
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdHartCount
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdBootHartId
+  gEfiSophgoSiliconTokenSpaceGuid.PcdSophgoSG2042CoreplexGuid

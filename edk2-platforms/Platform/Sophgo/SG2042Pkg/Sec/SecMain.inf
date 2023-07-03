@@ -25,52 +25,48 @@
   SecEntry.S
   SecMain.c
   SecMain.h
+  Cpu.c
+  Memory.c
+  Platform.c
 
 [Packages]
   EmbeddedPkg/EmbeddedPkg.dec
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
-  Silicon/RISC-V/ProcessorPkg/RiscVProcessorPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
   Platform/RISC-V/PlatformPkg/RiscVPlatformPkg.dec
 
 [LibraryClasses]
   BaseLib
-  BaseMemoryLib
-  DebugAgentLib
   DebugLib
-  ExtractGuidedSectionLib
-  FdtLib
-  IoLib
   PcdLib
+  IoLib
   PeCoffLib
-  PeCoffGetEntryPointLib
-  PeCoffExtraActionLib
-  PrintLib
-  RiscVCpuLib
-  RiscVFirmwareContextLib
+  LzmaDecompressLib
+  RiscVSbiLib
+  PrePiLib
+  FdtLib
+  MemoryAllocationLib
+  HobLib
+  SerialPortLib
+  RiscVCoreplexInfoLib
 
 [Ppis]
   gEfiTemporaryRamSupportPpiGuid # PPI ALWAYS_PRODUCED
   gEfiTemporaryRamDonePpiGuid    # PPI ALWAYS_PRODUCED
 
 [FixedPcd]
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVPeiFvBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVPeiFvSize
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDtbFvBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdDeviceTreeAddress
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvBase
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvSize
 
 [Pcd]
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdBootHartId
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRootFirmwareDomainBaseAddress
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRootFirmwareDomainSize
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdBootableHartNumber
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdBootableHartIndexToId
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdOpenSbiStackSize
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdScratchRamBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdScratchRamSize
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFirmwareRegionBaseAddress
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFirmwareRegionSize
   gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamBase
   gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamSize
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdPeiCorePrivilegeMode
+
+[Guids]
+  gFdtHobGuid
 
 [BuildOptions]
   GCC:*_*_*_PP_FLAGS = -D__ASSEMBLY__

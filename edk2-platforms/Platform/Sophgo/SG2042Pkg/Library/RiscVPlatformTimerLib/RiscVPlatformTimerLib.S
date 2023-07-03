@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //
-// SiFive U5 Series Timer CSR functions.
+// Sophgo SG2042 Timer CSR functions.
 //
 // Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
 //
@@ -8,9 +8,8 @@
 //
 //------------------------------------------------------------------------------
 #include <Base.h>
-#include <RiscVImpl.h>
+#include <Register/RiscV64/RiscVImpl.h>
 #include <SG2042Clint.h>
-#include <include/sbi/riscv_encoding.h>
 
 .data
 
