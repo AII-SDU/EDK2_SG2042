@@ -27,7 +27,7 @@ CpuPeimInitialization (
   //
   // for MMU type >= sv39
   //
-  BuildCpuHob (48, 32);
+  BuildCpuHob (56, 32);
 
   return EFI_SUCCESS;
 }

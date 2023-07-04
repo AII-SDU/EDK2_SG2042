@@ -307,6 +307,13 @@ MemoryPeimInitialization (
   INT32                       Len;
   VOID                        *FdtPointer;
 
+  UINT64 longestStart = 0;
+  UINT64 longestLength = 0;
+  UINT64 previousEnd = 0;
+  UINT64 currentStart = 0;
+  UINT64 currentLength = 0;
+  UINT64 maxLength = 0;
+
   FirmwareContext = NULL;
   GetFirmwareContextPointer (&FirmwareContext);
 
@@ -346,10 +353,24 @@ MemoryPeimInitialization (
           CurBase + CurSize - 1
           ));
 
-        InitializeRamRegions (
-          CurBase,
-          CurSize
-          );
+        if (previousEnd == 0 || CurBase == previousEnd) {
+            if (currentLength == 0) {
+                currentStart = CurBase;
+            }
+            currentLength += CurSize;
+
+            if (currentLength > maxLength) {
+                maxLength = currentLength;
+                longestStart = currentStart;
+                longestLength = maxLength;
+            }
+        } else {
+            currentStart = CurBase;
+            currentLength = CurSize;
+        }
+
+        previousEnd = CurBase + CurSize;
+
       } else {
         DEBUG ((
           DEBUG_ERROR,
@@ -359,6 +380,16 @@ MemoryPeimInitialization (
       }
     }
   }
+
+  DEBUG ((
+    DEBUG_INFO,
+    "%a: Total System RAM @ 0x%lx - 0x%lx\n",
+    __func__,
+    longestStart,
+    longestStart + longestLength - 1
+  ));
+
+  InitializeRamRegions (longestStart,longestLength);
 
   AddReservedMemoryMap (FdtPointer);
 

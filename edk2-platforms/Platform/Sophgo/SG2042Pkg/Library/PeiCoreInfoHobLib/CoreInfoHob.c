@@ -124,7 +124,7 @@ BuildRiscVSmbiosHobs (
     ASSERT(FALSE);
   }
 
-  DEBUG ((DEBUG_INFO, "U5 MC Coreplex SMBIOS DATA HOB at address 0x%x\n", SmbiosHobPtr));
+  DEBUG ((DEBUG_INFO, "SG2042 Coreplex SMBIOS DATA HOB at address 0x%x\n", SmbiosHobPtr));
 
   return EFI_SUCCESS;
 }
