@@ -63,7 +63,7 @@ SET gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamSize = 0x10000
 
 SET gUefiRiscVPkgTokenSpaceGuid.PcdRiscVMachineTimerFrequencyInHerz    = 50000000
 
-SET gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores       = 64         # Total U5 cores enabled on U540 platform
+SET gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores       = 64
 
 SET gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase               = 0x7040000000
 SET gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate                    = 115200

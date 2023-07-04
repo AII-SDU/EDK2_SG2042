@@ -100,7 +100,7 @@ CpuPeimInitialization (
   );
 
 /**
-  Build processor and platform information for the U5 platform
+  Build processor and platform information for the SG2042 platform
 
   @return EFI_SUCCESS     Status.
 

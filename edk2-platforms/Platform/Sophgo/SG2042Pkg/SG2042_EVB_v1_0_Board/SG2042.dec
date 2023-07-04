@@ -1,4 +1,4 @@
-## @file  U540.dec
+## @file  SG2042.dec
 # This Package provides Sophgo SG2042 modules and libraries.
 #
 # Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
@@ -19,7 +19,7 @@
 [LibraryClasses]
 
 [Guids]
-  gUefiRiscVPlatformU540PkgTokenSpaceGuid  = {0xDFD87009, 0x27A1, 0x41DD, { 0x84, 0xB1, 0x35, 0xB4, 0xB9, 0x0D, 0x17, 0x63 }}
+  gUefiRiscVPlatformSG2042PkgTokenSpaceGuid  = {0xDFD87009, 0x27A1, 0x41DD, { 0x84, 0xB1, 0x35, 0xB4, 0xB9, 0x0D, 0x17, 0x63 }}
 
 [UserExtensions.TianoCore."ExtraFiles"]
   SG2042Extra.uni

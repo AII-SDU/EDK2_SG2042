@@ -11,7 +11,7 @@
 #include "SecMain.h"
 
 /**
-  Build processor information for U54 Coreplex processor.
+  Build processor information for SG2042 Coreplex processor.
 
   @return EFI_SUCCESS     Status.
 
