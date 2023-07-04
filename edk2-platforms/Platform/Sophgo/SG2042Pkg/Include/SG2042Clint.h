@@ -1,5 +1,5 @@
 /** @file
-  RISC-V Timer Architectural definition for U500 platform.
+  RISC-V Timer Architectural definition for SG2042 platform.
 
   Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
 
