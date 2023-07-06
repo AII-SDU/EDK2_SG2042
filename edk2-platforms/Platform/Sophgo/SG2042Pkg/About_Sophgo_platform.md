@@ -26,9 +26,9 @@ The ZSBL stage works for the following:
 **OpenSBI Phase**  
 OpenSBI provides the conditions for platform initialization of SG2042, which runs as an independent firmware and an environment of an initialization link before edk2, which exists in the form of FW_PAYLOAD, which initializes the system in M-mode and initializes some functions of SG2042 , and put the subsequent edk2 operating environment in S-mode.  
 **PrePI Phase**  
-
+The PrePI phase builds some HOBs on Memory, CPU, FV, Stack and processor smbios information, eventually loading the DXE Core and transferring control.  
 **DXE Phase**  
-
+edk2 DXE OpenSBI protocol provides the unified interface for all DXE drivers to invoke SBI services，the DXE stage mainly adds the SG2042 SD card reading driver to read the contents of the SD card.  
 **BDS Phase**  
 The BDS stage runs under S-mode,The implementation of the RISC-V edk2 port in the BDS stage is executed with the PcdDxeCorePrivilegeMode PCD configuration permission, because OpenSBI converts the mode to S-mode, when BDS hands over the power to the operating system, it must be S-mode, avoiding another mode switch.  
 **TSL Phase**  

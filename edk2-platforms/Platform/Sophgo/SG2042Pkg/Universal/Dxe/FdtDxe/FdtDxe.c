@@ -23,8 +23,8 @@
 /**
   Fix up the device tree with booting hartid for the kernel
 
-  @param  DtbBlob The device tree. Is extended to fit the hart id.
-  @param  BootingHartId The boot hart ID.
+  @param  DtbBlob        The device tree. Is extended to fit the hart id.
+  @param  BootingHartId  The boot hart ID.
 
   @retval EFI_SUCCESS           The device tree was success fixed up with the hart id.
   @retval EFI_OUT_OF_RESOURCES  There is not enough memory available to complete the operation.

@@ -24,6 +24,6 @@
 EFI_STATUS
 BuildRiscVSmbiosHobs (
   VOID
-);
+  );
 
 #endif

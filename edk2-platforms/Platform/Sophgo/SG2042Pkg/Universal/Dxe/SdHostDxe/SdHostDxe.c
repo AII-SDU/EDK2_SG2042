@@ -54,7 +54,7 @@ SdBuildDevicePath (
   EFI_DEVICE_PATH_PROTOCOL *NewDevicePathNode;
   EFI_GUID DevicePathGuid = EFI_CALLER_ID_GUID;
 
-  DEBUG ((DEBUG_MMCHOST_SD, "SdHost: SdBuildDevicePath()\n"));
+  DEBUG ((DEBUG_MMCHOST_SD, "SdHost: SdBuildDevicePath ()\n"));
 
   NewDevicePathNode = CreateDeviceNode (HARDWARE_DEVICE_PATH, HW_VENDOR_DP, sizeof (VENDOR_DEVICE_PATH));
   CopyGuid (&((VENDOR_DEVICE_PATH*)NewDevicePathNode)->Guid, &DevicePathGuid);
@@ -92,7 +92,7 @@ SdReadBlockData (
   IN UINT32*                  Buffer
   )
 {
-  //DEBUG ((DEBUG_MMCHOST_SD_INFO, "SdHost: SdReadBlockData(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
+  // DEBUG ((DEBUG_MMCHOST_SD_INFO, "SdHost: SdReadBlockData(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
 
   ASSERT (Buffer != NULL);
   ASSERT (Length % 4 == 0);
@@ -146,7 +146,7 @@ SdSetIos (
 
   EFI_STATUS Status = EFI_SUCCESS;
 
-  Status = BmSdSetIos(BusClockFreq,BusWidth);
+  Status = BmSdSetIos (BusClockFreq,BusWidth);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SdSetIos Error, Status=%r.\n", Status));
@@ -191,44 +191,44 @@ SdNotifyState (
   }
 
   switch (State) {
-  case MmcHwInitializationState:
-    DEBUG ((DEBUG_MMCHOST_SD_INFO, "MmcHwInitializationState\n", State));
+    case MmcHwInitializationState:
+      DEBUG ((DEBUG_MMCHOST_SD_INFO, "MmcHwInitializationState\n", State));
 
-    EFI_STATUS Status = SdInit (SD_USE_PIO);
-    if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_MMCHOST_SD_ERROR,"SdHost: SdNotifyState(): Fail to initialize!\n"));
-      return Status;
-    }
-    break;
-  case MmcIdleState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcIdleState\n", State));
-    break;
-  case MmcReadyState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcReadyState\n", State));
-    break;
-  case MmcIdentificationState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcIdentificationState\n", State));
-    break;
-  case MmcStandByState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcStandByState\n", State));
-    break;
-  case MmcTransferState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcTransferState\n", State));
-    break;
-  case MmcSendingDataState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcSendingDataState\n", State));
-    break;
-  case MmcReceiveDataState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcReceiveDataState\n", State));
-    break;
-  case MmcProgrammingState:
-    DEBUG ((DEBUG_MMCHOST_SD, "MmcProgrammingState\n", State));
-    break;
-  case MmcDisconnectState:
-  case MmcInvalidState:
-  default:
-    DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdHost: SdNotifyState(): Invalid State: %d\n", State));
-    ASSERT (0);
+      EFI_STATUS Status = SdInit (SD_USE_PIO);
+      if (EFI_ERROR (Status)) {
+        DEBUG ((DEBUG_MMCHOST_SD_ERROR,"SdHost: SdNotifyState(): Fail to initialize!\n"));
+        return Status;
+      }
+      break;
+    case MmcIdleState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcIdleState\n", State));
+      break;
+    case MmcReadyState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcReadyState\n", State));
+      break;
+    case MmcIdentificationState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcIdentificationState\n", State));
+      break;
+    case MmcStandByState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcStandByState\n", State));
+      break;
+    case MmcTransferState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcTransferState\n", State));
+      break;
+    case MmcSendingDataState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcSendingDataState\n", State));
+      break;
+    case MmcReceiveDataState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcReceiveDataState\n", State));
+      break;
+    case MmcProgrammingState:
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcProgrammingState\n", State));
+      break;
+    case MmcDisconnectState:
+    case MmcInvalidState:
+    default:
+      DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdHost: SdNotifyState(): Invalid State: %d\n", State));
+      ASSERT (0);
   }
 
   return EFI_SUCCESS;
@@ -275,20 +275,19 @@ SdIsMultiBlock (
   return TRUE;
 }
 
-EFI_MMC_HOST_PROTOCOL gMmcHost =
-  {
-    MMC_HOST_PROTOCOL_REVISION,
-    SdIsCardPresent,
-    SdIsReadOnly,
-    SdBuildDevicePath,
-    SdNotifyState,
-    SdSendCommand,
-    SdReadBlockData,
-    SdWriteBlockData,
-    SdSetIos,
-    SdPrepare,
-    SdIsMultiBlock
-  };
+EFI_MMC_HOST_PROTOCOL gMmcHost = {
+  MMC_HOST_PROTOCOL_REVISION,
+  SdIsCardPresent,
+  SdIsReadOnly,
+  SdBuildDevicePath,
+  SdNotifyState,
+  SdSendCommand,
+  SdReadBlockData,
+  SdWriteBlockData,
+  SdSetIos,
+  SdPrepare,
+  SdIsMultiBlock
+};
 
 EFI_STATUS
 SdHostInitialize (

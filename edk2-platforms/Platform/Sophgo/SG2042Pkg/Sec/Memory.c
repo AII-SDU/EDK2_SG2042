@@ -304,16 +304,13 @@ MemoryPeimInitialization (
   CONST UINT64                *RegProp;
   CONST CHAR8                 *Type;
   UINT64                      CurBase, CurSize;
+  UINT64                      LongestStart = 0, LongestLength = 0;
+  UINT64                      PrevEnd = 0;
+  UINT64                      CurStart = 0, CurLength = 0;
+  UINT64                      MaxLength = 0;
   INT32                       Node, Prev;
   INT32                       Len;
   VOID                        *FdtPointer;
-
-  UINT64 longestStart = 0;
-  UINT64 longestLength = 0;
-  UINT64 previousEnd = 0;
-  UINT64 currentStart = 0;
-  UINT64 currentLength = 0;
-  UINT64 maxLength = 0;
 
   FirmwareContext = NULL;
   GetFirmwareContextPointer (&FirmwareContext);
@@ -354,23 +351,23 @@ MemoryPeimInitialization (
           CurBase + CurSize - 1
           ));
 
-        if (previousEnd == 0 || CurBase == previousEnd) {
-            if (currentLength == 0) {
-                currentStart = CurBase;
-            }
-            currentLength += CurSize;
+        if (PrevEnd == 0 || CurBase == PrevEnd) {
+          if (CurLength == 0) {
+            CurStart = CurBase;
+          }
+          CurLength += CurSize;
 
-            if (currentLength > maxLength) {
-                maxLength = currentLength;
-                longestStart = currentStart;
-                longestLength = maxLength;
-            }
+          if (CurLength > MaxLength) {
+            MaxLength = CurLength;
+            LongestStart = CurStart;
+            LongestLength = MaxLength;
+          }
         } else {
-            currentStart = CurBase;
-            currentLength = CurSize;
+          CurStart = CurBase;
+          CurLength = CurSize;
         }
 
-        previousEnd = CurBase + CurSize;
+        PrevEnd = CurBase + CurSize;
 
       } else {
         DEBUG ((
@@ -386,11 +383,11 @@ MemoryPeimInitialization (
     DEBUG_INFO,
     "%a: Total System RAM @ 0x%lx - 0x%lx\n",
     __func__,
-    longestStart,
-    longestStart + longestLength - 1
+    LongestStart,
+    LongestStart + LongestLength - 1
   ));
 
-  InitializeRamRegions (longestStart,longestLength);
+  InitializeRamRegions (LongestStart, LongestLength);
 
   AddReservedMemoryMap (FdtPointer);
 
