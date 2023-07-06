@@ -1,124 +1,148 @@
-/*
- * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+/** @file
  *
- * SPDX-License-Identifier: BSD-3-Clause
- */
+ *  Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+ *  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+ *
+ *  SPDX-License-Identifier: BSD-3-Clause
+ *
+ **/
 
 /* Define a simple and generic interface to access eMMC and SD-card devices. */
 
-#include <Include/SG2042Mmc.h>
+#include <Uefi.h>
+#include <Library/UefiLib.h>
+#include <Library/DebugLib.h>
+#include <Library/UefiBootServicesTableLib.h>
+#include <Library/IoLib.h>
+#include <Library/BaseMemoryLib.h>
+#include <Include/MmcHost.h>
+
 #include "Mmc.h"
 
 #define MMC_DEFAULT_MAX_RETRIES		5
 #define SEND_OP_COND_MAX_RETRIES	100
 
-#define MULT_BY_512K_SHIFT		19
+#define MULT_BY_512K_SHIFT		    19
 
-STATIC UINT32 mmc_ocr_value;
-STATIC struct mmc_csd_emmc mmc_csd;
-STATIC UINT8 mmc_ext_csd[512] __attribute__ ((aligned(16)));
-STATIC struct mmc_device_info mmc_dev_info = {
-	.mmc_dev_type = MMC_IS_SD_HC,
-	.ocr_voltage = 0x00300000, // OCR 3.2~3.3 3.3~3.4
+STATIC UINT32  MmcOCR;
+STATIC CSD     MmcCsd;
+STATIC UINT8   MmcExtCsd[512] __attribute__ ((aligned(16)));
+STATIC UINT32  MmcRCA;
+STATIC UINT32  MmcSCR[2] __attribute__ ((aligned(16))) = { 0 };
+
+typedef enum _MMC_DEVICE_TYPE {
+	MMC_IS_EMMC,
+	MMC_IS_SD,
+	MMC_IS_SD_HC,
+} MMC_DEVICE_TYPE;
+
+typedef struct {
+	UINT64	         DeviceSize;	/* Size of device in bytes */
+	UINT32		     BlockSize;	/* Block size in bytes */
+	UINT32		     MaxBusFreq;	/* Max bus freq in Hz */
+	UINT32		     OCRVoltage;	/* OCR voltage */
+	MMC_DEVICE_TYPE	 MmcDevType;	/* Type of MMC */
+} MMC_DEVICE_INFO;
+
+STATIC MMC_DEVICE_INFO MmcDevInfo = {
+	.MmcDevType = MMC_IS_SD_HC,
+	.OCRVoltage  = 0x00300000, // OCR 3.2~3.3 3.3~3.4
 };
-STATIC UINT32 rca;
-STATIC UINT32 scr[2] __attribute__ ((aligned(16))) = { 0 };
 
-STATIC CONST UINT8 tran_speed_base[16] = {
+STATIC CONST UINT8 TranSpeedBase[16] = {
 	0, 10, 12, 13, 15, 20, 26, 30, 35, 40, 45, 52, 55, 60, 70, 80
 };
 
-STATIC CONST UINT8 sd_tran_speed_base[16] = {
+STATIC CONST UINT8 SdTranSpeedBase[16] = {
 	0, 10, 12, 13, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80
 };
 
 STATIC 
 EFI_STATUS 
-mmc_device_state(
-	IN MMC_HOST_INSTANCE     *MmcHostInstance,
-	IN UINT32 *State
-)
+MmcDeviceState (
+  IN MMC_HOST_INSTANCE  *MmcHostInstance,
+  IN UINT32             *State
+  )
 {
-	INT32 retries = MMC_DEFAULT_MAX_RETRIES;
-	UINT32 resp_data[4];
+	INT32   RetryCount = MMC_DEFAULT_MAX_RETRIES;
+	UINT32  Response[4];
 
 	do {
 		EFI_STATUS Status;
 
-		if (retries == 0) {
-			// pr_err("CMD13 failed after %d retries\n",
-			//       MMC_DEFAULT_MAX_RETRIES);
+		if (RetryCount == 0) {
 			DEBUG ((DEBUG_ERROR, "%a: CMD13 failed after %d retries\n", __FUNCTION__, MMC_DEFAULT_MAX_RETRIES));
 			return EFI_DEVICE_ERROR;
 		}
 
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(13), rca << RCA_SHIFT_OFFSET,
-				   MMC_RESPONSE_R1, &resp_data[0]);
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD13, MmcRCA << RCA_SHIFT_OFFSET,
+				   MMC_RESPONSE_R1, Response);
 		if (EFI_ERROR (Status)) {
-			retries--;
+			RetryCount--;
 			continue;
 		}
 
-		if ((resp_data[0] & STATUS_SWITCH_ERROR) != 0U) {
+		if ((Response[0] & MMC_R0_SWITCH_ERROR) != 0U) {
 			return EFI_DEVICE_ERROR;
 		}
 
-		retries--;
-	} while ((resp_data[0] & STATUS_READY_FOR_DATA) == 0U);
+		RetryCount--;
+	} while ((Response[0] & MMC_R0_READY_FOR_DATA) == 0U);
 
-    DEBUG ((DEBUG_ERROR, "%a: sd state %x\n", __FUNCTION__, MMC_GET_STATE(resp_data[0])));
-	*State = MMC_GET_STATE(resp_data[0]);
+    // DEBUG ((DEBUG_INFO, "%a: sd state %x\n", __FUNCTION__, MMC_R0_CURRENTSTATE(Response)));
+	*State = MMC_R0_CURRENTSTATE(Response);
+
 	return EFI_SUCCESS;
 }
 
 STATIC 
 EFI_STATUS 
-mmc_set_ext_csd(
-	IN MMC_HOST_INSTANCE     *MmcHostInstance,
-	IN UINT32 ext_cmd, 
-	IN UINT32 value
-)
+MmcSetExtCsd (
+  IN MMC_HOST_INSTANCE  *MmcHostInstance,
+  IN UINT32             ExtCmd, 
+  IN UINT32             Value
+  )
 {
 	EFI_STATUS Status;
-	UINT32 State;
+	UINT32     State;
 
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(6),
-			   EXTCSD_WRITE_BYTES | EXTCSD_CMD(ext_cmd) |
-			   EXTCSD_VALUE(value) | EXTCSD_CMD_SET_NORMAL,
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD6,
+			   EXTCSD_WRITE_BYTES | EXTCSD_CMD(ExtCmd) |
+			   EXTCSD_VALUE(Value) | EXTCSD_CMD_SET_NORMAL,
 			   MMC_RESPONSE_R1B, NULL);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
 	do {
-		Status = mmc_device_state(MmcHostInstance, &State);
+		Status = MmcDeviceState (MmcHostInstance, &State);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
-	} while (State == MMC_STATE_PRG);
+	} while (State == MMC_R0_STATE_PROG);
 
 	return EFI_SUCCESS;
 }
 
 STATIC 
 EFI_STATUS 
-mmc_sd_switch(
-    IN MMC_HOST_INSTANCE     *MmcHostInstance,
-    IN UINT32 bus_width
+MmcSdSwitch (
+  IN MMC_HOST_INSTANCE  *MmcHostInstance,
+  IN UINT32             BusWidth
   )
 {
-	EFI_STATUS Status;
-	UINT32 State;
-	INT32 retries = MMC_DEFAULT_MAX_RETRIES;
-	UINT32 bus_width_arg = 0;
+	EFI_STATUS  Status;
+	UINT32      State;
+	INT32       RetryCount = MMC_DEFAULT_MAX_RETRIES;
+	UINT32      BusWidthArg = 0;
 
-	Status = MmcHostInstance->MmcHost->Prepare(MmcHostInstance->MmcHost, 0, sizeof(scr), (UINTN)&scr);
+	Status = MmcHostInstance->MmcHost->Prepare(MmcHostInstance->MmcHost, 0, sizeof(MmcSCR), (UINTN)&MmcSCR);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
 	/* CMD55: Application Specific Command */
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(55), rca << RCA_SHIFT_OFFSET,
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD55, MmcRCA << RCA_SHIFT_OFFSET,
 			   MMC_RESPONSE_R5, NULL);
 	if (EFI_ERROR (Status)) {
 		return Status;
@@ -126,74 +150,71 @@ mmc_sd_switch(
 
 	/* ACMD51: SEND_SCR */
 	do {
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_ACMD(51), 0, MMC_RESPONSE_R1, NULL);
-		if ((EFI_ERROR (Status)) && (retries == 0)) {
-			// pr_err("ACMD51 failed after %d retries (ret=%d)\n",
-			//       MMC_DEFAULT_MAX_RETRIES, ret);
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_ACMD51, 0, MMC_RESPONSE_R1, NULL);
+		if ((EFI_ERROR (Status)) && (RetryCount == 0)) {
 			DEBUG ((DEBUG_ERROR, "%a: ACMD51 failed after %d retries (Status=%r)\n", __FUNCTION__, MMC_DEFAULT_MAX_RETRIES, Status));
 			return Status;
 		}
 
-		retries--;
+		RetryCount--;
 	} while (EFI_ERROR (Status));
 
-	Status = MmcHostInstance->MmcHost->ReadBlockData(MmcHostInstance->MmcHost, 0, sizeof(scr), scr);
+	Status = MmcHostInstance->MmcHost->ReadBlockData(MmcHostInstance->MmcHost, 0, sizeof(MmcSCR), MmcSCR);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
-	if (((scr[0] & SD_SCR_BUS_WIDTH_4) != 0U) &&
-	    (bus_width == MMC_BUS_WIDTH_4)) {
-		bus_width_arg = 2;
+	if (((MmcSCR[0] & SD_SCR_BUS_WIDTH_4) != 0U) &&
+	    (BusWidth == MMC_BUS_WIDTH_4)) {
+		BusWidthArg = 2;
 	}
 
 	/* CMD55: Application Specific Command */
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(55), rca << RCA_SHIFT_OFFSET,
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD55, MmcRCA << RCA_SHIFT_OFFSET,
 			   MMC_RESPONSE_R5, NULL);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
 	/* ACMD6: SET_BUS_WIDTH */
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_ACMD(6), bus_width_arg, MMC_RESPONSE_R1, NULL);
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD6, BusWidthArg, MMC_RESPONSE_R1, NULL);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
 	do {
-		Status = mmc_device_state(MmcHostInstance, &State);
+		Status = MmcDeviceState (MmcHostInstance, &State);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
-	} while (State == MMC_STATE_PRG);
+	} while (State == MMC_R0_STATE_PROG);
 
 	return EFI_SUCCESS;
 }
 
 STATIC 
 EFI_STATUS 
-mmc_set_ios(  
-  IN MMC_HOST_INSTANCE     *MmcHostInstance,
-  IN UINT32 clk, 
-  IN UINT32 bus_width
+MmcSetIos (  
+  IN MMC_HOST_INSTANCE  *MmcHostInstance,
+  IN UINT32             Clk, 
+  IN UINT32             BusWidth
   )
 {
-	EFI_STATUS Status;
-	UINT32 width = bus_width;
+	EFI_STATUS  Status;
+	UINT32      Width = BusWidth;
 
-	if (mmc_dev_info.mmc_dev_type != MMC_IS_EMMC) {
-		if (width == MMC_BUS_WIDTH_8) {
-			// pr_err("Wrong bus config for SD-card, force to 4\n");
+	if (MmcDevInfo.MmcDevType != MMC_IS_EMMC) {
+		if (Width == MMC_BUS_WIDTH_8) {
 			DEBUG ((DEBUG_INFO, "%a: Wrong bus config for SD-card, force to 4\n", __FUNCTION__));
-			width = MMC_BUS_WIDTH_4;
+			Width = MMC_BUS_WIDTH_4;
 		}
-		Status = mmc_sd_switch(MmcHostInstance, width);
+		Status = MmcSdSwitch (MmcHostInstance, Width);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
-	} else if (mmc_csd.spec_vers == 4U) {
-		Status = mmc_set_ext_csd(MmcHostInstance, CMD_EXTCSD_BUS_WIDTH,
-				      (UINT32)width);
+	} else if (MmcCsd.SPEC_VERS == 4U) {
+		Status = MmcSetExtCsd (MmcHostInstance, CMD_EXTCSD_BUS_WIDTH,
+				      (UINT32)Width);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
@@ -202,91 +223,91 @@ mmc_set_ios(
 		DEBUG ((DEBUG_INFO, "%a: Wrong MMC type or spec version\n", __FUNCTION__));
 	}
 
-	return MmcHostInstance->MmcHost->SetIos(MmcHostInstance->MmcHost, clk, width);
+	return MmcHostInstance->MmcHost->SetIos(MmcHostInstance->MmcHost, Clk, Width);
 }
 
 STATIC 
 EFI_STATUS 
-mmc_fill_device_info(
-    IN MMC_HOST_INSTANCE     *MmcHostInstance
-)
+MmcFillDeviceInfo (
+  IN MMC_HOST_INSTANCE  *MmcHostInstance
+  )
 {
-	UINTN c_size;
-	UINT32 speed_idx;
-	UINT32 nb_blocks;
-	UINT32 freq_unit;
-	EFI_STATUS Status = EFI_SUCCESS;
-	UINT32 State;
-	struct mmc_csd_sd_v2 *csd_sd_v2;
+	UINTN       CardSize;
+	UINT32      SpeedIdx;
+	UINT32      NumBlocks;
+	UINT32      FreqUnit;
+	EFI_STATUS  Status = EFI_SUCCESS;
+	UINT32      State;
+	ECSD        *CsdSdV2;
 
-	switch (mmc_dev_info.mmc_dev_type) {
+	switch (MmcDevInfo.MmcDevType) {
 	case MMC_IS_EMMC:
-		mmc_dev_info.block_size = MMC_BLOCK_SIZE;
+		MmcDevInfo.BlockSize = MMC_BLOCK_SIZE;
 
-		Status = MmcHostInstance->MmcHost->Prepare(MmcHostInstance->MmcHost, 0, sizeof(mmc_ext_csd), (UINTN)&mmc_ext_csd);
+		Status = MmcHostInstance->MmcHost->Prepare(MmcHostInstance->MmcHost, 0, sizeof(MmcExtCsd), (UINTN)&MmcExtCsd);
 		
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 
 		/* MMC CMD8: SEND_EXT_CSD */
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(8), 0, MMC_RESPONSE_R1, NULL);
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD8, 0, MMC_RESPONSE_R1, NULL);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 
-		Status = MmcHostInstance->MmcHost->ReadBlockData(MmcHostInstance->MmcHost, 0, sizeof(mmc_ext_csd), (UINT32*)mmc_ext_csd);
+		Status = MmcHostInstance->MmcHost->ReadBlockData(MmcHostInstance->MmcHost, 0, sizeof(MmcExtCsd), (UINT32*)MmcExtCsd);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 
 		do {
-			Status = mmc_device_state(MmcHostInstance, &State);
+			Status = MmcDeviceState (MmcHostInstance, &State);
 			if (EFI_ERROR (Status)) {
 				return Status;
 			}
-		} while (State != MMC_STATE_TRAN);
+		} while (State != MMC_R0_STATE_TRAN);
 
-		nb_blocks = (mmc_ext_csd[CMD_EXTCSD_SEC_CNT] << 0) |
-			    (mmc_ext_csd[CMD_EXTCSD_SEC_CNT + 1] << 8) |
-			    (mmc_ext_csd[CMD_EXTCSD_SEC_CNT + 2] << 16) |
-			    (mmc_ext_csd[CMD_EXTCSD_SEC_CNT + 3] << 24);
+		NumBlocks = (MmcExtCsd[CMD_EXTCSD_SEC_CNT] << 0) |
+			    (MmcExtCsd[CMD_EXTCSD_SEC_CNT + 1] << 8) |
+			    (MmcExtCsd[CMD_EXTCSD_SEC_CNT + 2] << 16) |
+			    (MmcExtCsd[CMD_EXTCSD_SEC_CNT + 3] << 24);
 
-		mmc_dev_info.device_size = (unsigned long long)nb_blocks *
-			mmc_dev_info.block_size;
+		MmcDevInfo.DeviceSize = (unsigned long long)NumBlocks *
+			MmcDevInfo.BlockSize;
 
 		break;
 
 	case MMC_IS_SD:
 		/*
-		 * Use the same mmc_csd struct, as required fields here
+		 * Use the same MmcCsd struct, as required fields here
 		 * (READ_BL_LEN, C_SIZE, CSIZE_MULT) are common with eMMC.
 		 */
-		mmc_dev_info.block_size = BIT_32(mmc_csd.read_bl_len);
+		MmcDevInfo.BlockSize = BIT_32(MmcCsd.READ_BL_LEN);
 
-		c_size = ((unsigned long long)mmc_csd.c_size_high << 2U) |
-			 (unsigned long long)mmc_csd.c_size_low;
-		ASSERT(c_size != 0xFFFU);
+		CardSize = ((unsigned long long)MmcCsd.C_SIZEHigh10 << 2U) |
+			 (unsigned long long)MmcCsd.C_SIZELow2;
+		ASSERT(CardSize != 0xFFFU);
 
-		mmc_dev_info.device_size = (c_size + 1U) *
-					    BIT_64(mmc_csd.c_size_mult + 2U) *
-					    mmc_dev_info.block_size;
+		MmcDevInfo.DeviceSize = (CardSize + 1U) *
+					    BIT_64(MmcCsd.C_SIZE_MULT + 2U) *
+					    MmcDevInfo.BlockSize;
 
 		break;
 
 	case MMC_IS_SD_HC:
 	    MmcHostInstance->CardInfo.CardType = SD_CARD_2_HIGH;
 		
-		ASSERT(mmc_csd.csd_structure == 1U);
+		ASSERT(MmcCsd.CSD_STRUCTURE == 1U);
 
-		mmc_dev_info.block_size = MMC_BLOCK_SIZE;
+		MmcDevInfo.BlockSize = MMC_BLOCK_SIZE;
 
-		/* Need to use mmc_csd_sd_v2 struct */
-		csd_sd_v2 = (struct mmc_csd_sd_v2 *)&mmc_csd;
-		c_size = ((unsigned long long)csd_sd_v2->c_size_high << 16) |
-			 (unsigned long long)csd_sd_v2->c_size_low;
+		/* Need to use ECSD struct */
+		CsdSdV2 = (ECSD *)&MmcCsd;
+		CardSize = ((unsigned long long)CsdSdV2->C_SIZEHigh6 << 16) |
+			 (unsigned long long)CsdSdV2->C_SIZELow16;
 
-		mmc_dev_info.device_size = (c_size + 1U) << MULT_BY_512K_SHIFT;
+		MmcDevInfo.DeviceSize = (CardSize + 1U) << MULT_BY_512K_SHIFT;
 		break;
 
 	default:
@@ -298,62 +319,61 @@ mmc_fill_device_info(
 		return Status;
 	}
 
-	speed_idx = (mmc_csd.tran_speed & CSD_TRAN_SPEED_MULT_MASK) >>
+	SpeedIdx = (MmcCsd.TRAN_SPEED & CSD_TRAN_SPEED_MULT_MASK) >>
 			 CSD_TRAN_SPEED_MULT_SHIFT;
 
-	ASSERT(speed_idx > 0U);
+	ASSERT(SpeedIdx > 0U);
 
-	if (mmc_dev_info.mmc_dev_type == MMC_IS_EMMC) {
-		mmc_dev_info.max_bus_freq = tran_speed_base[speed_idx];
+	if (MmcDevInfo.MmcDevType == MMC_IS_EMMC) {
+		MmcDevInfo.MaxBusFreq = TranSpeedBase[SpeedIdx];
 	} else {
-		mmc_dev_info.max_bus_freq = sd_tran_speed_base[speed_idx];
+		MmcDevInfo.MaxBusFreq = SdTranSpeedBase[SpeedIdx];
 	}
 
-	freq_unit = mmc_csd.tran_speed & CSD_TRAN_SPEED_UNIT_MASK;
-	while (freq_unit != 0U) {
-		mmc_dev_info.max_bus_freq *= 10U;
-		--freq_unit;
+	FreqUnit = MmcCsd.TRAN_SPEED & CSD_TRAN_SPEED_UNIT_MASK;
+	while (FreqUnit != 0U) {
+		MmcDevInfo.MaxBusFreq *= 10U;
+		--FreqUnit;
 	}
 
-	mmc_dev_info.max_bus_freq *= 10000U;
+	MmcDevInfo.MaxBusFreq *= 10000U;
 
 	return EFI_SUCCESS;
 }
 
 STATIC 
 EFI_STATUS 
-sd_send_op_cond(
-    IN MMC_HOST_INSTANCE     *MmcHostInstance
-)
+SdSendOpCond (
+  IN MMC_HOST_INSTANCE  *MmcHostInstance
+  )
 {
-	INT32 n;
-	UINT32 resp_data[4];
+	INT32 I;
+	UINT32 Response[4];
 
-	for (n = 0; n < SEND_OP_COND_MAX_RETRIES; n++) {
+	for (I = 0; I < SEND_OP_COND_MAX_RETRIES; I++) {
 		EFI_STATUS Status;
 
 		/* CMD55: Application Specific Command */
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(55), 0, MMC_RESPONSE_R1, NULL);
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD55, 0, MMC_RESPONSE_R1, NULL);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 
 		/* ACMD41: SD_SEND_OP_COND */
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_ACMD(41), OCR_HCS |
-			mmc_dev_info.ocr_voltage, MMC_RESPONSE_R3,
-			&resp_data[0]);
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_ACMD41, OCR_HCS |
+			MmcDevInfo.OCRVoltage, MMC_RESPONSE_R3, Response);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 
-		if ((resp_data[0] & OCR_POWERUP) != 0U) {
-			mmc_ocr_value = resp_data[0];
+		if ((Response[0] & MMC_OCR_POWERUP) != 0U) {
+			MmcOCR = Response[0];
 
-			if ((mmc_ocr_value & OCR_HCS) != 0U) {
-				mmc_dev_info.mmc_dev_type = MMC_IS_SD_HC;
+			if ((MmcOCR & OCR_HCS) != 0U) {
+				MmcDevInfo.MmcDevType = MMC_IS_SD_HC;
 				MmcHostInstance->CardInfo.OCRData.AccessMode = BIT1;
 			} else {
-				mmc_dev_info.mmc_dev_type = MMC_IS_SD;
+				MmcDevInfo.MmcDevType = MMC_IS_SD;
 				MmcHostInstance->CardInfo.OCRData.AccessMode = 0x0;
 			}
 
@@ -363,7 +383,6 @@ sd_send_op_cond(
 		gBS->Stall (10000);
 	}
 
-	// pr_err("ACMD41 failed after %d retries\n", SEND_OP_COND_MAX_RETRIES);
 	DEBUG ((DEBUG_ERROR, "%a: ACMD41 failed after %d retries\n", __FUNCTION__, SEND_OP_COND_MAX_RETRIES));
 
 	return EFI_DEVICE_ERROR;
@@ -371,14 +390,14 @@ sd_send_op_cond(
 
 STATIC 
 EFI_STATUS 
-mmc_reset_to_idle(
+MmcResetToIdle(
   IN MMC_HOST_INSTANCE     *MmcHostInstance
-)
+  )
 {
 	EFI_STATUS Status;
 
 	/* CMD0: reset to IDLE */
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(0), 0, 0, NULL);
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD0, 0, 0, NULL);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
@@ -390,36 +409,35 @@ mmc_reset_to_idle(
 
 STATIC 
 EFI_STATUS 
-mmc_send_op_cond(
-	IN MMC_HOST_INSTANCE     *MmcHostInstance
-)
+MmcSendOpCond (
+  IN MMC_HOST_INSTANCE     *MmcHostInstance
+  )
 {
-	INT32 n;
-	EFI_STATUS Status;
-	UINT32 resp_data[4];
+	INT32       I;
+	EFI_STATUS  Status;
+	UINT32      Response[4];
 
-	Status = mmc_reset_to_idle(MmcHostInstance);
+	Status = MmcResetToIdle (MmcHostInstance);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
-	for (n = 0; n < SEND_OP_COND_MAX_RETRIES; n++) {
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(1), OCR_SECTOR_MODE |
+	for (I = 0; I < SEND_OP_COND_MAX_RETRIES; I++) {
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD1, OCR_SECTOR_MODE |
 				   OCR_VDD_MIN_2V7 | OCR_VDD_MIN_1V7,
-				   MMC_RESPONSE_R3, &resp_data[0]);
+				   MMC_RESPONSE_R3, Response);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 
-		if ((resp_data[0] & OCR_POWERUP) != 0U) {
-			mmc_ocr_value = resp_data[0];
+		if ((Response[0] & MMC_OCR_POWERUP) != 0U) {
+			MmcOCR = Response[0];
 			return EFI_SUCCESS;
 		}
 
 		gBS->Stall (10000);
 	}
 
-	// pr_err("CMD1 failed after %d retries\n", SEND_OP_COND_MAX_RETRIES);
 	DEBUG ((DEBUG_ERROR, "%a: CMD1 failed after %d retries\n", __FUNCTION__, SEND_OP_COND_MAX_RETRIES));
 
 	return EFI_DEVICE_ERROR;
@@ -427,30 +445,30 @@ mmc_send_op_cond(
 
 STATIC 
 EFI_STATUS 
-mmc_enumerate(  
+MmcEnumerte (  
   IN MMC_HOST_INSTANCE     *MmcHostInstance,
-  IN UINT32                clk, 
-  IN UINT32                bus_width
+  IN UINT32                Clk, 
+  IN UINT32                BusWidth
   )
 {
-	EFI_STATUS Status;
-	UINT32     State;
-	UINT32 resp_data[4];
+	EFI_STATUS  Status;
+	UINT32      State;
+	UINT32      Response[4];
 
-	Status = mmc_reset_to_idle(MmcHostInstance);
+	Status = MmcResetToIdle (MmcHostInstance);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
-	if (mmc_dev_info.mmc_dev_type == MMC_IS_EMMC) {
-		Status = mmc_send_op_cond(MmcHostInstance);
+	if (MmcDevInfo.MmcDevType == MMC_IS_EMMC) {
+		Status = MmcSendOpCond (MmcHostInstance);
 	} else {
 		/* CMD8: Send Interface Condition Command */
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(8), VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
-				   MMC_RESPONSE_R5, &resp_data[0]);
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD8, VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
+				   MMC_RESPONSE_R5, Response);
 
-		if ((Status == EFI_SUCCESS) && ((resp_data[0] & 0xffU) == CMD8_CHECK_PATTERN)) {
-			Status = sd_send_op_cond(MmcHostInstance);
+		if ((Status == EFI_SUCCESS) && ((Response[0] & 0xffU) == CMD8_CHECK_PATTERN)) {
+			Status = SdSendOpCond (MmcHostInstance);
 		}
 	}
 	if (EFI_ERROR (Status)) {
@@ -458,58 +476,58 @@ mmc_enumerate(
 	}
 
 	/* CMD2: Card Identification */
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(2), 0, MMC_RESPONSE_R2, NULL);
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD2, 0, MMC_RESPONSE_R2, NULL);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
 	/* CMD3: Set Relative Address */
-	if (mmc_dev_info.mmc_dev_type == MMC_IS_EMMC) {
-		rca = MMC_FIX_RCA;
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(3), rca << RCA_SHIFT_OFFSET,
+	if (MmcDevInfo.MmcDevType == MMC_IS_EMMC) {
+		MmcRCA = MMC_FIX_RCA;
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD3, MmcRCA << RCA_SHIFT_OFFSET,
 				   MMC_RESPONSE_R1, NULL);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 	} else {
-		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(3), 0,
-				   MMC_RESPONSE_R6, &resp_data[0]);
+		Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD3, 0,
+				   MMC_RESPONSE_R6, Response);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
 
-		rca = (resp_data[0] & 0xFFFF0000U) >> 16;
+		MmcRCA = (Response[0] & 0xFFFF0000U) >> 16;
 	}
 
 	/* CMD9: CSD Register */
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(9), rca << RCA_SHIFT_OFFSET,
-			   MMC_RESPONSE_R2, &resp_data[0]);
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD9, MmcRCA << RCA_SHIFT_OFFSET,
+			   MMC_RESPONSE_R2, Response);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
-	CopyMem(&mmc_csd, &resp_data, sizeof(resp_data));
+	CopyMem(&MmcCsd, &Response, sizeof(Response));
 
 	/* CMD7: Select Card */
-	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD(7), rca << RCA_SHIFT_OFFSET,
+	Status = MmcHostInstance->MmcHost->SendCommand(MmcHostInstance->MmcHost, MMC_CMD7, MmcRCA << RCA_SHIFT_OFFSET,
 			   MMC_RESPONSE_R1, NULL);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
 	do {
-		Status = mmc_device_state(MmcHostInstance, &State);
+		Status = MmcDeviceState (MmcHostInstance, &State);
 		if (EFI_ERROR (Status)) {
 			return Status;
 		}
-	} while (State != MMC_STATE_TRAN);
+	} while (State != MMC_R0_STATE_TRAN);
 
-	Status = mmc_set_ios(MmcHostInstance, clk, bus_width);
+	Status = MmcSetIos (MmcHostInstance, Clk, BusWidth);
 	if (EFI_ERROR (Status)) {
 		return Status;
 	}
 
-	return mmc_fill_device_info(MmcHostInstance);
+	return MmcFillDeviceInfo (MmcHostInstance);
 }
 
 STATIC
@@ -542,16 +560,16 @@ MmcIdentificationMode (
     }
   }
 
-  Status = mmc_enumerate(MmcHostInstance, 50 * 1000 * 1000, MMC_BUS_WIDTH_4);
+  Status = MmcEnumerte (MmcHostInstance, 50 * 1000 * 1000, MMC_BUS_WIDTH_4);
 
   if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_ERROR, "MmcIdentificationMode() : Error mmc_enumerate, Status=%r.\n", Status));
+      DEBUG ((DEBUG_ERROR, "MmcIdentificationMode() : Error MmcEnumerte, Status=%r.\n", Status));
       return Status;
   }
 
-  MmcHostInstance->CardInfo.RCA = rca;
-  MmcHostInstance->BlockIo.Media->LastBlock = ((mmc_dev_info.device_size >> 9) - 1);
-  MmcHostInstance->BlockIo.Media->BlockSize = mmc_dev_info.block_size;
+  MmcHostInstance->CardInfo.RCA = MmcRCA;
+  MmcHostInstance->BlockIo.Media->LastBlock = ((MmcDevInfo.DeviceSize >> 9) - 1);
+  MmcHostInstance->BlockIo.Media->BlockSize = MmcDevInfo.BlockSize;
   MmcHostInstance->BlockIo.Media->ReadOnly = MmcHost->IsReadOnly (MmcHost);
   MmcHostInstance->BlockIo.Media->MediaPresent = TRUE;
   MmcHostInstance->BlockIo.Media->MediaId++;

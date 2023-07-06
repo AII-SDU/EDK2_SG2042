@@ -2,7 +2,7 @@
  *
  *  Copyright (c) 2017, Andrei Warkentin <andrey.warkentin@gmail.com>
  *  Copyright (c) Microsoft Corporation. All rights reserved.
- *
+ *  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
  *  SPDX-License-Identifier: BSD-2-Clause-Patent
  *
  **/
@@ -22,14 +22,15 @@
 #include <Protocol/EmbeddedExternalDevice.h>
 #include <Protocol/BlockIo.h>
 #include <Protocol/DevicePath.h>
+#include <Include/MmcHost.h>
 
 #include "Sdhci.h"
 
-#define SDHOST_BLOCK_BYTE_LENGTH            512
+#define SDHOST_BLOCK_BYTE_LENGTH  512
 
-#define DEBUG_MMCHOST_SD       DEBUG_VERBOSE
-#define DEBUG_MMCHOST_SD_INFO  DEBUG_INFO
-#define DEBUG_MMCHOST_SD_ERROR DEBUG_ERROR
+#define DEBUG_MMCHOST_SD          DEBUG_VERBOSE
+#define DEBUG_MMCHOST_SD_INFO     DEBUG_INFO
+#define DEBUG_MMCHOST_SD_ERROR    DEBUG_ERROR
 
 
 STATIC BOOLEAN mCardIsPresent = FALSE;
@@ -65,7 +66,7 @@ SdBuildDevicePath (
 STATIC EFI_STATUS
 SdSendCommand (
   IN EFI_MMC_HOST_PROTOCOL    *This,
-  IN MMC_CMD                  MmcCmd,
+  IN MMC_IDX                  MmcCmd,
   IN UINT32                   Argument,
   IN MMC_RESPONSE_TYPE        Type,
   IN UINT32*                  Buffer
@@ -73,7 +74,7 @@ SdSendCommand (
 {
   EFI_STATUS Status = EFI_SUCCESS;
 
-  Status = bm_sd_send_cmd(MmcCmd, Argument, Type, Buffer);
+  Status = BmSdSendCmd (MmcCmd, Argument, Type, Buffer);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SdSendCommand Error, Status=%r.\n", Status));
@@ -98,7 +99,7 @@ SdReadBlockData (
 
   EFI_STATUS Status = EFI_SUCCESS;
 
-  Status = bm_sd_read(Lba, Buffer, Length);
+  Status = BmSdRead (Lba, Buffer, Length);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SdReadBlockData Error, Status=%r.\n", Status));
@@ -123,7 +124,7 @@ SdWriteBlockData (
 
   EFI_STATUS Status = EFI_SUCCESS;
 
-  Status = bm_sd_write(Lba, Buffer, Length);
+  Status = BmSdWrite (Lba, Buffer, Length);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SdWriteBlockData Error, Status=%r.\n", Status));
@@ -140,12 +141,12 @@ SdSetIos (
   IN  UINT32                    BusWidth
   )
 {
-  DEBUG ((DEBUG_MMCHOST_SD_INFO, "Setting Freq %u Hz\n", BusClockFreq));
-  DEBUG ((DEBUG_MMCHOST_SD_INFO, "Setting BusWidth %u\n", BusWidth));
+  DEBUG ((DEBUG_MMCHOST_SD_INFO, "%a: Setting Freq %u Hz\n", __FUNCTION__, BusClockFreq));
+  DEBUG ((DEBUG_MMCHOST_SD_INFO, "%a: Setting BusWidth %u\n", __FUNCTION__, BusWidth));
 
   EFI_STATUS Status = EFI_SUCCESS;
 
-  Status = bm_sd_set_ios(BusClockFreq,BusWidth);
+  Status = BmSdSetIos(BusClockFreq,BusWidth);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SdSetIos Error, Status=%r.\n", Status));
@@ -167,7 +168,7 @@ SdPrepare (
 
   EFI_STATUS Status = EFI_SUCCESS;
 
-  Status = bm_sd_prepare(Lba, Buffer, Length);
+  Status = BmSdPrepare (Lba, Buffer, Length);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SdPrepare Error, Status=%r.\n", Status));
@@ -249,12 +250,12 @@ SdIsCardPresent (
   mCardDetectState = CardDetectInProgress;
   mCardIsPresent = FALSE;
 
-  if (bm_sd_card_detect() == 1) {
+  if (BmSdCardDetect () == 1) {
     mCardIsPresent = TRUE;
     goto out;
   }
   else {
-    DEBUG ((DEBUG_ERROR, "SdIsCardPresent: Error bm_sd_card_detect.\n"));
+    DEBUG ((DEBUG_ERROR, "SdIsCardPresent: Error SdCardDetect.\n"));
     mCardDetectState = CardDetectRequired;
     return FALSE;
   }

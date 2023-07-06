@@ -47,7 +47,7 @@ Sophgo SG2042 UEFI can currently use Opensbi+UEFI firmware+GRUB to successfully 
 
 6. Build platform. For Exmaple:  
 
-	`build -a RISCV64 -t GCC5 -p Platform/Sophgo/SG2042Pkg/SG2042_EVB_v1_0_Board/SG2042.dsc`  
+	`build -a RISCV64 -t GCC5 -p Platform/Sophgo/SG2042Pkg/SG2042_EVB_Board/SG2042.dsc`  
 After a successful build, the resulting images can be found in Build/{Platform Name}/{TARGET}_{TOOL_CHAIN_TAG}/FV/SG2042.fd.  
 7. The SG2042.fd file will be renamed to riscv64_Image using the "mv" command.  
    `$ mv SG2042.fd riscv64_Image`
@@ -58,7 +58,7 @@ Put the completed files into the fs0: directory for execution.
    
 
 ## Platform Status ##  
-**SG2042_EVB_v1_0_Board** Currently the binary built from SG2042 edk2 package can boot Sophgo SG2042 EVB to EFI shell with console,And using GRUB2, the operating system will be booted and the Linux operating system will be entered for execution. Please refer to 
+**SG2042_EVB_Board** Currently the binary built from SG2042 edk2 package can boot Sophgo SG2042 EVB to EFI shell with console,And using GRUB2, the operating system will be booted and the Linux operating system will be entered for execution. Please refer to 
 https://github.com/AII-SDU/EDK2_SG2042/blob/separate-v2/edk2-platforms/Platform/Sophgo/SG2042Pkg/About_Sophgo_platform.md 
 for booting to Linux OS.
 

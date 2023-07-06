@@ -14,6 +14,23 @@ The SG2042 RISC-V EDK2 project is developed based on the original Sophgo SG2042 
 **SG2042 RISC-V EDK2 startup flowchart**
 ![image](https://github.com/AII-SDU/EDK2_SG2042/blob/separate-v2/edk2-platforms/Platform/Sophgo/SG2042Pkg/Documents/Media/EDK2_SDU_Programme.png)
 
+**ZSBL Phase**  
+ZSBL is the first stage of chip initialization, the main function is
+**FSBL Phase**  
+**Note:** The FSBL here corresponds to the ZSBL stage code provided by Sophgo.
 
+**OpenSBI Phase**  
+OpenSBI provides the conditions for platform initialization of SG2042, which runs as an independent firmware and an environment of an initialization link before edk2, which exists in the form of FW_PAYLOAD, which initializes the system in M-mode and initializes some functions of SG2042 , and put the subsequent edk2 operating environment in S-mode.
+**PrePI Phase**  
+
+**DXE Phase**  
+
+**BDS Phase**  
+
+**TSL Phase**  
+
+**RT Phase**  
+
+**AL Phase**  
 
 

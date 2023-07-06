@@ -7,6 +7,7 @@
   insert the id into the device tree, that the EFIFSTUB can read from the config table.
 
   Copyright (c) 2021-2022, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
+  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 **/
@@ -74,25 +75,12 @@ InstallFdtFromHob (
   VOID
   )
 {
-  EFI_STATUS         Status;
-  EFI_HOB_GUID_TYPE  *GuidHob;
-  VOID               *DataInHob;
-  UINTN              DataSize;
+  EFI_STATUS                  Status;
+  EFI_HOB_GUID_TYPE           *GuidHob;
+  VOID                        *DataInHob;
+  UINTN                       DataSize;
   EFI_RISCV_FIRMWARE_CONTEXT  *FirmwareContext;
-  UINTN              mBootHartId;
-
-  GuidHob = GetFirstGuidHob (&gFdtHobGuid);
-  if (GuidHob == NULL) {
-    DEBUG ((
-      DEBUG_ERROR,
-      "Failed to find RISC-V DTB Hob\n",
-      __FUNCTION__
-      ));
-    return EFI_NOT_FOUND;
-  }
-
-  DataInHob = (VOID *)*((UINTN *)GET_GUID_HOB_DATA (GuidHob));
-  DataSize  = GET_GUID_HOB_DATA_SIZE (GuidHob);
+  UINTN                       mBootHartId;
 
   GuidHob = GetFirstGuidHob (&gFdtHobGuid);
   if (GuidHob == NULL) {

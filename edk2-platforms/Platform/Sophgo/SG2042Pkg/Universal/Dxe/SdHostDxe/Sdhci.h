@@ -1,15 +1,13 @@
 /*
  * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
- *
+ * Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef _SD_HCI_H_
 #define _SD_HCI_H_
 
-#include <Include/SG2042Mmc.h>
-
-#define SDIO_BASE	0x704002B000
+#define SDIO_BASE	                    0x704002B000
 #define SDHCI_DMA_ADDRESS               0x00
 #define SDHCI_BLOCK_SIZE                0x04
 #define SDHCI_MAKE_BLKSZ(dma, blksz)    ((((dma) & 0x7) << 12) | ((blksz) & 0xFFF))
@@ -145,46 +143,146 @@
 #define SMPLDL_CNFG_INPSEL_CNFG_MSK		0x3
 #define SMPLDL_CNFG_INPSEL_OVERRIDE		4
 
-#define ATDL_CNFG_EXTDLY_EN			0
-#define ATDL_CNFG_BYPASS_EN			1
+#define ATDL_CNFG_EXTDLY_EN			    0
+#define ATDL_CNFG_BYPASS_EN			    1
 #define ATDL_CNFG_INPSEL_CNFG			2
 #define ATDL_CNFG_INPSEL_CNFG_MSK		0x3
 
-/*
- * card detect status
- * -1: haven't check the card detect register
- * 0 : no card detected
- * 1 : card detected
- */
+#define SD_USE_PIO                      0x1
+
+/**
+  card detect status
+  -1: haven't check the card detect register
+  0 : no card detected
+  1 : card detected
+**/
 #define SDCARD_STATUS_UNKNOWN		(-1)
 #define SDCARD_STATUS_INSERTED		(1)
 #define SDCARD_STATUS_NOT_INSERTED	(0)
 
-typedef struct bm_sd_params {
-	UINTN	reg_base;
-	UINTN	vendor_base;
-	UINTN	desc_base;
-	UINTN		desc_size;
-	int		clk_rate;
-	int		bus_width;
-	unsigned int	flags;
-	int		card_in;
-} bm_sd_params_t;
+typedef struct {
+	UINT32	CmdIdx;
+	UINT32	CmdArg;
+	UINT32	ResponseType;
+	UINT32	Response[4];
+}MMC_CMD;
 
-#define SD_USE_PIO      BIT0
+typedef struct {
+	UINTN	RegBase;
+	UINTN	VendorBase;
+	UINTN	DescBase;
+	UINTN   DescSize;
+	INT32	ClkRate;
+	INT32	BusWidth;
+	UINT32	Flags;
+	INT32	CardIn;
+} BM_SD_PARAMS;
 
-EFI_STATUS bm_sd_send_cmd(UINT32 idx, UINT32 arg, UINT32 r_type, UINT32 *r_data);
-EFI_STATUS bm_sd_set_ios(UINT32 clk, UINT32 width);
-EFI_STATUS bm_sd_read(INT32 lba, UINT32* buf, UINTN size);
-EFI_STATUS bm_sd_write(INT32 lba, UINT32* buf, UINTN size);
-EFI_STATUS bm_sd_prepare(INT32 lba, UINTN buf, UINTN size);
-INT32 bm_sd_card_detect(VOID);
+/**
+  SD card sends command.
 
-VOID SdPhyInit (VOID);
+  @param[in]  Idx       Command ID.
+  @param[in]  Arg       Command argument.
+  @param[in]  RespType  Type of response data.
+  @param[out] Response  Response data.
+
+  @retval  EFI_STATUS.
+**/
+EFI_STATUS
+EFIAPI
+BmSdSendCmd (
+  IN  UINT32 Idx, 
+  IN  UINT32 Arg, 
+  IN  UINT32 RespType, 
+  OUT UINT32 *Response
+  );
+
+
+/**
+  Detect the status of the SD card.
+
+  @retval   card detect status
+            -1: haven't check the card detect register
+            0 : no card detected
+            1 : card detected
+
+**/
+INT32
+BmSdCardDetect (
+  VOID
+  );
+
+/**
+  Set Initialization Operating Condition State of the SD card.
+
+  @param[in]  Clk       Clock Frequency.
+  @param[in]  Arg       Bus Width.
+
+  @retval  EFI_STATUS.
+**/
+EFI_STATUS 
+BmSdSetIos (
+  IN UINT32 Clk, 
+  IN UINT32 Width
+  );
+
+/**
+  Set the number and size of data blocks before sending IO commands to the SD card.
+
+  @param[in]  Lba       Logical Block Address.
+  @param[in]  Buf       Buffer Address.
+  @param[in]  Size      Size of Data Blocks.
+
+  @retval  EFI_STATUS.
+**/
+EFI_STATUS 
+BmSdPrepare (
+  IN INT32 Lba, 
+  IN UINTN Buf, 
+  IN UINTN Size
+  );
+
+/**
+  SD card sends command to read data blocks.
+
+  @param[in]  Lba       Logical Block Address.
+  @param[in]  Buf       Buffer Address.
+  @param[in]  Size      Size of Data Blocks.
+
+  @retval  EFI_STATUS.
+**/
+EFI_STATUS 
+BmSdRead (
+  IN INT32   Lba, 
+  IN UINT32* Buf, 
+  IN UINTN   Size
+  );
+
+/**
+  SD card sends commands to write data blocks.
+
+  @param[in]  Lba       Logical Block Address.
+  @param[in]  Buf       Buffer Address.
+  @param[in]  Size      Size of Data Blocks.
+
+  @retval  EFI_STATUS.
+**/
+EFI_STATUS 
+BmSdWrite (
+  IN INT32   Lba, 
+  IN UINT32* Buf, 
+  IN UINTN   Size
+  );
+
+
+VOID 
+SdPhyInit (
+  VOID
+  );
 
 EFI_STATUS 
 SdInit (  
-	IN UINT32  flags
-);
+  IN UINT32  flags
+  );
 
 #endif

@@ -3,7 +3,7 @@
 
   Copyright (c) 2022, Ventana Micro Systems Inc. All rights reserved.<BR>
   SPDX-License-Identifier: BSD-2-Clause-Patent
-
+   
 **/
 
 #ifndef SEC_MAIN_H_

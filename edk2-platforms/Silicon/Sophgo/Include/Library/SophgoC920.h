@@ -1,8 +1,9 @@
 /** @file
-  SiFive U54 Core library definitions.
+  Sophgo c920 Core library definitions.
 
   Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
-
+  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+  
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/

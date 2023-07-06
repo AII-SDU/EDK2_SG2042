@@ -2,8 +2,8 @@
  *
  *  Main file of the MMC Dxe driver. The driver entrypoint is defined into this file.
  *
- *  Copyright (c) 2019, Andrei Warkentin <andrey.warkentin@gmail.com>
  *  Copyright (c) 2011-2013, ARM Limited. All rights reserved.
+ *  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
  *
  *  SPDX-License-Identifier: BSD-2-Clause-Patent
  *
