@@ -23,7 +23,12 @@ BuildCoreInformationHob (
   return BuildRiscVSmbiosHobs ();
 }
 
+/**
+  Initialize the memory and CPU, setting the boot mode, and platform 
+  initialization. It also builds the core information HOB.
 
+  @return EFI_SUCCESS     Status.
+**/
 STATIC
 EFI_STATUS
 EFIAPI

@@ -1,13 +1,12 @@
 /** @file
- *
- *  Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
- *  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
- *
- *  SPDX-License-Identifier: BSD-3-Clause
- *
- **/
+  Define a simple and generic interface to access eMMC and SD-card devices.
 
-/* Define a simple and generic interface to access eMMC and SD-card devices. */
+  Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
+
+  SPDX-License-Identifier: BSD-3-Clause
+
+**/
 
 #include <Uefi.h>
 #include <Include/MmcHost.h>
@@ -46,7 +45,7 @@ typedef struct {
 
 STATIC MMC_DEVICE_INFO MmcDevInfo = {
   .MmcDevType = MMC_IS_SD_HC,
-  .OCRVoltage  = 0x00300000, // OCR 3.2~3.3 3.3~3.4
+  .OCRVoltage = 0x00300000, // OCR 3.2~3.3 3.3~3.4
 };
 
 STATIC CONST UINT8 TranSpeedBase[16] = {
@@ -57,6 +56,16 @@ STATIC CONST UINT8 SdTranSpeedBase[16] = {
   0, 10, 12, 13, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80
 };
 
+/**
+  Get the current state of the MMC device.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+  @param[out]    State                 Pointer to the variable to store the device state.
+
+  @retval EFI_SUCCESS                   The device state was retrieved successfully.
+  @retval EFI_DEVICE_ERROR              Failed to retrieve the device state.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcDeviceState (
@@ -64,37 +73,49 @@ MmcDeviceState (
   IN UINT32             *State
   )
 {
-  INT32   RetryCount = MMC_DEFAULT_MAX_RETRIES;
-  UINT32  Response[4];
+  EFI_STATUS Status;
+  INT32      RetryCount;
+  UINT32     Response[4];
+
+  RetryCount = MMC_DEFAULT_MAX_RETRIES;
 
   do {
-    EFI_STATUS Status;
-
     if (RetryCount == 0) {
       DEBUG ((DEBUG_ERROR, "%a: CMD13 failed after %d retries\n", __FUNCTION__, MMC_DEFAULT_MAX_RETRIES));
       return EFI_DEVICE_ERROR;
-	}
+	  }
 
     Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD13, MmcRCA << RCA_SHIFT_OFFSET,
                MMC_RESPONSE_R1, Response);
     if (EFI_ERROR (Status)) {
       RetryCount--;
       continue;
-	}
+	  }
 
     if ((Response[0] & MMC_R0_SWITCH_ERROR) != 0U) {
       return EFI_DEVICE_ERROR;
-	}
+	  }
 
     RetryCount--;
   } while ((Response[0] & MMC_R0_READY_FOR_DATA) == 0U);
 
-// DEBUG ((DEBUG_INFO, "%a: sd state %x\n", __FUNCTION__, MMC_R0_CURRENTSTATE(Response)));
+  // DEBUG ((DEBUG_INFO, "%a: sd state %x\n", __FUNCTION__, MMC_R0_CURRENTSTATE(Response)));
   *State = MMC_R0_CURRENTSTATE (Response);
 
   return EFI_SUCCESS;
 }
 
+/**
+  Set the value of the specified MMC extended CSD register.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+  @param[in]     ExtCmd                The extended CSD command.
+  @param[in]     Value                 The value to set.
+
+  @retval EFI_SUCCESS                  The value was successfully set.
+  @retval Other                        An error occurred while setting the value.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcSetExtCsd (
@@ -124,6 +145,16 @@ MmcSetExtCsd (
   return EFI_SUCCESS;
 }
 
+/**
+  Perform an SD switch to set the bus width for the MMC/SD device.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+  @param[in]     BusWidth              The desired bus width.
+
+  @retval EFI_SUCCESS                   The bus width was successfully set.
+  @retval Other                         An error occurred while setting the bus width.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcSdSwitch (
@@ -133,22 +164,25 @@ MmcSdSwitch (
 {
   EFI_STATUS  Status;
   UINT32      State;
-  INT32       RetryCount = MMC_DEFAULT_MAX_RETRIES;
-  UINT32      BusWidthArg = 0;
+  INT32       RetryCount;
+  UINT32      BusWidthArg;
+
+  RetryCount  = MMC_DEFAULT_MAX_RETRIES;
+  BusWidthArg = 0;
 
   Status = MmcHostInstance->MmcHost->Prepare (MmcHostInstance->MmcHost, 0, sizeof(MmcSCR), (UINTN)&MmcSCR);
   if (EFI_ERROR (Status)) {
     return Status;
   }
 
-  /* CMD55: Application Specific Command */
+  // CMD55: Application Specific Command
   Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD55, MmcRCA << RCA_SHIFT_OFFSET,
              MMC_RESPONSE_R5, NULL);
   if (EFI_ERROR (Status)) {
     return Status;
   }
 
-  /* ACMD51: SEND_SCR */
+  // ACMD51: SEND_SCR
   do {
     Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_ACMD51, 0, MMC_RESPONSE_R1, NULL);
     if ((EFI_ERROR (Status)) && (RetryCount == 0)) {
@@ -168,14 +202,14 @@ MmcSdSwitch (
     BusWidthArg = 2;
   }
 
-  /* CMD55: Application Specific Command */
+  // CMD55: Application Specific Command
   Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD55, MmcRCA << RCA_SHIFT_OFFSET,
              MMC_RESPONSE_R5, NULL);
   if (EFI_ERROR (Status)) {
     return Status;
   }
 
-  /* ACMD6: SET_BUS_WIDTH */
+  // ACMD6: SET_BUS_WIDTH
   Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD6, BusWidthArg, MMC_RESPONSE_R1, NULL);
   if (EFI_ERROR (Status)) {
     return Status;
@@ -191,6 +225,17 @@ MmcSdSwitch (
   return EFI_SUCCESS;
 }
 
+/**
+  Set the I/O settings for the MMC/SD device.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+  @param[in]     Clk                   The desired clock frequency.
+  @param[in]     BusWidth              The desired bus width.
+
+  @retval EFI_SUCCESS                   The I/O settings were successfully set.
+  @retval Other                         An error occurred while setting the I/O settings.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcSetIos (  
@@ -200,7 +245,9 @@ MmcSetIos (
   )
 {
   EFI_STATUS  Status;
-  UINT32      Width = BusWidth;
+  UINT32      Width;
+
+  Width = BusWidth;
 
   if (MmcDevInfo.MmcDevType != MMC_IS_EMMC) {
     if (Width == MMC_BUS_WIDTH_8) {
@@ -224,19 +271,31 @@ MmcSetIos (
   return MmcHostInstance->MmcHost->SetIos (MmcHostInstance->MmcHost, Clk, Width);
 }
 
+/**
+  Fill the MMC device information.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+
+  @retval EFI_SUCCESS                   The MMC device information was successfully filled.
+  @retval EFI_DEVICE_ERROR              Failed to fill the MMC device information.
+  @retval Other                         An error occurred while filling the MMC device information.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcFillDeviceInfo (
   IN MMC_HOST_INSTANCE  *MmcHostInstance
   )
 {
+  EFI_STATUS  Status;
   UINTN       CardSize;
   UINT32      SpeedIdx;
   UINT32      NumBlocks;
   UINT32      FreqUnit;
-  EFI_STATUS  Status = EFI_SUCCESS;
   UINT32      State;
   ECSD        *CsdSdV2;
+
+  Status = EFI_SUCCESS;
 
   switch (MmcDevInfo.MmcDevType) {
     case MMC_IS_EMMC:
@@ -296,7 +355,7 @@ MmcFillDeviceInfo (
     case MMC_IS_SD_HC:
         MmcHostInstance->CardInfo.CardType = SD_CARD_2_HIGH;
       
-      ASSERT(MmcCsd.CSD_STRUCTURE == 1U);
+      ASSERT (MmcCsd.CSD_STRUCTURE == 1U);
 
       MmcDevInfo.BlockSize = MMC_BLOCK_SIZE;
 
@@ -320,7 +379,7 @@ MmcFillDeviceInfo (
   SpeedIdx = (MmcCsd.TRAN_SPEED & CSD_TRAN_SPEED_MULT_MASK) >>
         CSD_TRAN_SPEED_MULT_SHIFT;
 
-  ASSERT(SpeedIdx > 0U);
+  ASSERT (SpeedIdx > 0U);
 
   if (MmcDevInfo.MmcDevType == MMC_IS_EMMC) {
     MmcDevInfo.MaxBusFreq = TranSpeedBase[SpeedIdx];
@@ -339,25 +398,34 @@ MmcFillDeviceInfo (
   return EFI_SUCCESS;
 }
 
+/**
+  Send the SD_SEND_OP_COND command to initialize the SD card.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+
+  @retval EFI_SUCCESS                   The SD_SEND_OP_COND command was successfully sent.
+  @retval EFI_DEVICE_ERROR              Failed to send the SD_SEND_OP_COND command.
+  @retval Other                         An error occurred while sending the SD_SEND_OP_COND command.
+
+**/
 STATIC 
 EFI_STATUS 
 SdSendOpCond (
   IN MMC_HOST_INSTANCE  *MmcHostInstance
   )
 {
-  INT32 I;
-  UINT32 Response[4];
+  EFI_STATUS Status;
+  INT32      I;
+  UINT32     Response[4];
 
   for (I = 0; I < SEND_OP_COND_MAX_RETRIES; I++) {
-    EFI_STATUS Status;
-
-    /* CMD55: Application Specific Command */
+    // CMD55: Application Specific Command
     Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD55, 0, MMC_RESPONSE_R1, NULL);
     if (EFI_ERROR (Status)) {
       return Status;
     }
 
-    /* ACMD41: SD_SEND_OP_COND */
+    // ACMD41: SD_SEND_OP_COND
     Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_ACMD41, OCR_HCS |
       MmcDevInfo.OCRVoltage, MMC_RESPONSE_R3, Response);
     if (EFI_ERROR (Status)) {
@@ -369,7 +437,7 @@ SdSendOpCond (
 
       if ((MmcOCR & OCR_HCS) != 0U) {
         MmcDevInfo.MmcDevType = MMC_IS_SD_HC;
-        MmcHostInstance->CardInfo.OCRData.AccessMode = BIT1;
+        MmcHostInstance->CardInfo.OCRData.AccessMode = 0x2;
       } else {
         MmcDevInfo.MmcDevType = MMC_IS_SD;
         MmcHostInstance->CardInfo.OCRData.AccessMode = 0x0;
@@ -386,6 +454,15 @@ SdSendOpCond (
   return EFI_DEVICE_ERROR;
 }
 
+/**
+  Reset the MMC/SD card to the idle state.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+
+  @retval EFI_SUCCESS                   The MMC/SD card was successfully reset to the idle state.
+  @retval Other                         An error occurred while resetting the MMC/SD card to the idle state.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcResetToIdle(
@@ -405,6 +482,16 @@ MmcResetToIdle(
   return EFI_SUCCESS;
 }
 
+/**
+  Send the Operation Condition (CMD1) to the MMC/SD card.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+
+  @retval EFI_SUCCESS                   The Operation Condition was successfully sent to the MMC/SD card.
+  @retval EFI_DEVICE_ERROR              Failed to send the Operation Condition to the MMC/SD card.
+  @retval Other                         An error occurred while sending the Operation Condition to the MMC/SD card.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcSendOpCond (
@@ -441,6 +528,17 @@ MmcSendOpCond (
   return EFI_DEVICE_ERROR;
 }
 
+/**
+  Enumerate and initialize the MMC/SD card.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+  @param[in]     Clk                   Clock frequency for the MMC/SD card.
+  @param[in]     BusWidth              Bus width for the MMC/SD card.
+
+  @retval EFI_SUCCESS                   The MMC/SD card was successfully enumerated and initialized.
+  @retval Other                         An error occurred while enumerating and initializing the MMC/SD card.
+
+**/
 STATIC 
 EFI_STATUS 
 MmcEnumerte (  
@@ -461,7 +559,7 @@ MmcEnumerte (
   if (MmcDevInfo.MmcDevType == MMC_IS_EMMC) {
     Status = MmcSendOpCond (MmcHostInstance);
   } else {
-    /* CMD8: Send Interface Condition Command */
+    // CMD8: Send Interface Condition Command
     Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD8, VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
             MMC_RESPONSE_R5, Response);
 
@@ -473,13 +571,13 @@ MmcEnumerte (
     return Status;
   }
 
-  /* CMD2: Card Identification */
+  // CMD2: Card Identification
   Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD2, 0, MMC_RESPONSE_R2, NULL);
   if (EFI_ERROR (Status)) {
     return Status;
   }
 
-  /* CMD3: Set Relative Address */
+  // CMD3: Set Relative Address
   if (MmcDevInfo.MmcDevType == MMC_IS_EMMC) {
     MmcRCA = MMC_FIX_RCA;
     Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD3, MmcRCA << RCA_SHIFT_OFFSET,
@@ -497,7 +595,7 @@ MmcEnumerte (
     MmcRCA = (Response[0] & 0xFFFF0000U) >> 16;
   }
 
-  /* CMD9: CSD Register */
+  // CMD9: CSD Register
   Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD9, MmcRCA << RCA_SHIFT_OFFSET,
           MMC_RESPONSE_R2, Response);
   if (EFI_ERROR (Status)) {
@@ -506,7 +604,7 @@ MmcEnumerte (
 
   CopyMem(&MmcCsd, &Response, sizeof(Response));
 
-  /* CMD7: Select Card */
+  // CMD7: Select Card
   Status = MmcHostInstance->MmcHost->SendCommand (MmcHostInstance->MmcHost, MMC_CMD7, MmcRCA << RCA_SHIFT_OFFSET,
           MMC_RESPONSE_R1, NULL);
   if (EFI_ERROR (Status)) {
@@ -528,6 +626,16 @@ MmcEnumerte (
   return MmcFillDeviceInfo (MmcHostInstance);
 }
 
+/**
+  Perform the MMC Identification Mode.
+
+  @param[in]     MmcHostInstance       Pointer to the MMC_HOST_INSTANCE structure.
+
+  @retval EFI_SUCCESS                   The MMC Identification Mode was performed successfully.
+  @retval EFI_INVALID_PARAMETER         MmcHost is NULL.
+  @retval Other                         An error occurred while performing the MMC Identification Mode.
+
+**/
 STATIC
 EFI_STATUS
 EFIAPI
@@ -541,8 +649,8 @@ MmcIdentificationMode (
   EFI_MMC_HOST_PROTOCOL   *MmcHost;
 
   MmcHost = MmcHostInstance->MmcHost;
-  CmdArg = 0;
-  IsHCS = FALSE;
+  CmdArg  = 0;
+  IsHCS   = FALSE;
 
   if (MmcHost == NULL) {
     return EFI_INVALID_PARAMETER;
@@ -565,16 +673,25 @@ MmcIdentificationMode (
       return Status;
   }
 
-  MmcHostInstance->CardInfo.RCA = MmcRCA;
-  MmcHostInstance->BlockIo.Media->LastBlock = ((MmcDevInfo.DeviceSize >> 9) - 1);
-  MmcHostInstance->BlockIo.Media->BlockSize = MmcDevInfo.BlockSize;
-  MmcHostInstance->BlockIo.Media->ReadOnly = MmcHost->IsReadOnly (MmcHost);
+  MmcHostInstance->CardInfo.RCA                = MmcRCA;
+  MmcHostInstance->BlockIo.Media->LastBlock    = ((MmcDevInfo.DeviceSize >> 9) - 1);
+  MmcHostInstance->BlockIo.Media->BlockSize    = MmcDevInfo.BlockSize;
+  MmcHostInstance->BlockIo.Media->ReadOnly     = MmcHost->IsReadOnly (MmcHost);
   MmcHostInstance->BlockIo.Media->MediaPresent = TRUE;
   MmcHostInstance->BlockIo.Media->MediaId++;
 
   return EFI_SUCCESS;
 }
 
+/**
+  Initialize the MMC device.
+
+  @param[in] MmcHostInstance   MMC host instance
+
+  @retval EFI_SUCCESS          MMC device initialized successfully
+  @retval Other                MMC device initialization failed
+
+**/
 EFI_STATUS
 InitializeMmcDevice (
   IN  MMC_HOST_INSTANCE   *MmcHostInstance
@@ -585,7 +702,7 @@ InitializeMmcDevice (
   UINTN                   BlockCount;
 
   BlockCount = 1;
-  MmcHost = MmcHostInstance->MmcHost;
+  MmcHost    = MmcHostInstance->MmcHost;
 
   Status = MmcIdentificationMode (MmcHostInstance);
   if (EFI_ERROR (Status)) {

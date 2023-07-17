@@ -1,12 +1,11 @@
 /** @file
- *
- *  Component Name Protocol implementation for the MMC DXE driver
- *
- *  Copyright (c) 2011, ARM Limited. All rights reserved.
- *
- *  SPDX-License-Identifier: BSD-2-Clause-Patent
- *
- **/
+  Component Name Protocol implementation for the MMC DXE driver
+
+  Copyright (c) 2011, ARM Limited. All rights reserved.
+
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
+**/
 
 #include "Mmc.h"
 

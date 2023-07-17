@@ -17,6 +17,15 @@ VOID *mFlashBase;
 STATIC UINTN       mFdBlockSize = 0;
 STATIC UINTN       mFdBlockCount = 0;
 
+/**
+  Get the pointer to a specific location in the Flash memory.
+
+  @param[in] Lba     The logical block address (LBA).
+  @param[in] Offset  The offset within the block.
+
+  @return The pointer to the specified location in Flash memory.
+
+**/
 STATIC
 UINT8*
 RamFlashPtr (

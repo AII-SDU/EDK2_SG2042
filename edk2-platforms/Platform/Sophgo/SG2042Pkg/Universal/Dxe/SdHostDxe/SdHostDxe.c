@@ -1,11 +1,14 @@
 /** @file
- *
- *  Copyright (c) 2017, Andrei Warkentin <andrey.warkentin@gmail.com>
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
- *  SPDX-License-Identifier: BSD-2-Clause-Patent
- *
- **/
+  This file implements the SD host controller driver for UEFI systems.
+  The file contains the implementation of the EFI_MMC_HOST_PROTOCOL, which provides
+  the necessary interfaces for handling communication and data transfer with SD cards.
+
+  Copyright (c) 2017, Andrei Warkentin <andrey.warkentin@gmail.com>
+  Copyright (c) Microsoft Corporation. All rights reserved.
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
+**/
 
 #include <Uefi.h>
 #include <Library/BaseLib.h>
@@ -24,7 +27,7 @@
 #include <Protocol/DevicePath.h>
 #include <Include/MmcHost.h>
 
-#include "Sdhci.h"
+#include "SdHci.h"
 
 #define SDHOST_BLOCK_BYTE_LENGTH  512
 
@@ -33,11 +36,19 @@
 #define DEBUG_MMCHOST_SD_ERROR    DEBUG_ERROR
 
 
-STATIC BOOLEAN mCardIsPresent = FALSE;
-STATIC CARD_DETECT_STATE mCardDetectState = CardDetectRequired;
+STATIC BOOLEAN            mCardIsPresent   = FALSE;
+STATIC CARD_DETECT_STATE  mCardDetectState = CardDetectRequired;
 
+/**
+  Check if the SD card is read-only.
 
-STATIC BOOLEAN
+  @param[in] This      Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+
+  @retval FALSE        The SD card is not read-only.
+
+**/
+STATIC
+BOOLEAN
 SdIsReadOnly (
   IN EFI_MMC_HOST_PROTOCOL *This
   )
@@ -45,10 +56,20 @@ SdIsReadOnly (
   return FALSE;
 }
 
-STATIC EFI_STATUS
+/**
+  Build the device path for the SD card.
+
+  @param[in]  This           Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+  @param[out] DevicePath     Pointer to the location to store the newly created device path.
+
+  @retval EFI_SUCCESS        The device path is built successfully.
+
+**/
+STATIC
+EFI_STATUS
 SdBuildDevicePath (
-  IN EFI_MMC_HOST_PROTOCOL       *This,
-  IN EFI_DEVICE_PATH_PROTOCOL    **DevicePath
+  IN  EFI_MMC_HOST_PROTOCOL       *This,
+  OUT EFI_DEVICE_PATH_PROTOCOL    **DevicePath
   )
 {
   EFI_DEVICE_PATH_PROTOCOL *NewDevicePathNode;
@@ -63,7 +84,20 @@ SdBuildDevicePath (
   return EFI_SUCCESS;
 }
 
-STATIC EFI_STATUS
+/**
+  Send a command to the SD card.
+
+  @param[in] This       Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+  @param[in] MmcCmd     The MMC command to send.
+  @param[in] Argument   The argument for the command.
+  @param[in] Type       The type of response expected.
+  @param[in] Buffer     Pointer to the buffer to store the response.
+
+  @retval EFI_SUCCESS   The command was sent successfully and the response was retrieved.
+  @retval Other         An error occurred while sending a command.
+**/
+STATIC
+EFI_STATUS
 SdSendCommand (
   IN EFI_MMC_HOST_PROTOCOL    *This,
   IN MMC_IDX                  MmcCmd,
@@ -72,44 +106,70 @@ SdSendCommand (
   IN UINT32*                  Buffer
   )
 {
-  EFI_STATUS Status = EFI_SUCCESS;
+  EFI_STATUS Status;
 
   Status = BmSdSendCmd (MmcCmd, Argument, Type, Buffer);
 
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "SdSendCommand Error, Status=%r.\n", Status));
+    DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdSendCommand Error, Status=%r.\n", Status));
     return Status;
   }
 
-  return Status;
+  return EFI_SUCCESS;
 }
 
-STATIC EFI_STATUS
+/**
+  Read block data from an SD card.
+
+  @param[in] This       Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+  @param[in] Lba        Logical Block Address of the starting block to read.
+  @param[in] Length     Number of blocks to read.
+  @param[in] Buffer     Pointer to the buffer to store the read data.
+
+  @retval EFI_SUCCESS   The operation completed successfully.
+  @retval Other         The operation failed.
+
+**/
+STATIC
+EFI_STATUS
 SdReadBlockData (
-  IN EFI_MMC_HOST_PROTOCOL    *This,
-  IN EFI_LBA                  Lba,
-  IN UINTN                    Length,
-  IN UINT32*                  Buffer
+  IN  EFI_MMC_HOST_PROTOCOL    *This,
+  IN  EFI_LBA                  Lba,
+  IN  UINTN                    Length,
+  OUT UINT32*                  Buffer
   )
 {
-  // DEBUG ((DEBUG_MMCHOST_SD_INFO, "SdHost: SdReadBlockData(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
+  EFI_STATUS Status;
+
+  // DEBUG ((DEBUG_MMCHOST_SD, "SdHost: SdReadBlockData(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
 
   ASSERT (Buffer != NULL);
   ASSERT (Length % 4 == 0);
 
-  EFI_STATUS Status = EFI_SUCCESS;
-
   Status = BmSdRead (Lba, Buffer, Length);
 
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "SdReadBlockData Error, Status=%r.\n", Status));
+    DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdReadBlockData Error, Status=%r.\n", Status));
     return Status;
   }
 
-  return Status;
+  return EFI_SUCCESS;
 }
 
-STATIC EFI_STATUS
+/**
+  Write block data to an SD card.
+
+  @param[in] This       Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+  @param[in] Lba        Logical Block Address of the starting block to write.
+  @param[in] Length     Number of blocks to write.
+  @param[in] Buffer     Pointer to the buffer containing the data to be written.
+
+  @retval EFI_SUCCESS   The operation completed successfully.
+  @retval Other         The operation failed.
+
+**/
+STATIC
+EFI_STATUS
 SdWriteBlockData (
   IN EFI_MMC_HOST_PROTOCOL    *This,
   IN EFI_LBA                  Lba,
@@ -117,46 +177,71 @@ SdWriteBlockData (
   IN UINT32*                  Buffer
   )
 {
-  DEBUG ((DEBUG_MMCHOST_SD_INFO, "SdHost: SdWriteBlockData(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
+  EFI_STATUS Status;
+
+  DEBUG ((DEBUG_MMCHOST_SD, "SdHost: SdWriteBlockData(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
 
   ASSERT (Buffer != NULL);
   ASSERT (Length % SDHOST_BLOCK_BYTE_LENGTH == 0);
 
-  EFI_STATUS Status = EFI_SUCCESS;
-
   Status = BmSdWrite (Lba, Buffer, Length);
 
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "SdWriteBlockData Error, Status=%r.\n", Status));
-    return Status;
-  }
-
-  return Status;
-}
-
-STATIC EFI_STATUS
-SdSetIos (
-  IN EFI_MMC_HOST_PROTOCOL      *This,
-  IN  UINT32                    BusClockFreq,
-  IN  UINT32                    BusWidth
-  )
-{
-  DEBUG ((DEBUG_MMCHOST_SD_INFO, "%a: Setting Freq %u Hz\n", __FUNCTION__, BusClockFreq));
-  DEBUG ((DEBUG_MMCHOST_SD_INFO, "%a: Setting BusWidth %u\n", __FUNCTION__, BusWidth));
-
-  EFI_STATUS Status = EFI_SUCCESS;
-
-  Status = BmSdSetIos (BusClockFreq,BusWidth);
-
-  if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "SdSetIos Error, Status=%r.\n", Status));
+    DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdWriteBlockData Error, Status=%r.\n", Status));
     return Status;
   }
 
   return EFI_SUCCESS;
 }
 
-STATIC EFI_STATUS
+/**
+  Set the I/O settings for an SD card.
+
+  @param[in]  This           Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+  @param[in]  BusClockFreq   Bus clock frequency in Hz.
+  @param[in]  BusWidth       Bus width setting.
+
+  @retval EFI_SUCCESS        The operation completed successfully.
+  @retval Other              The operation failed.
+
+**/
+STATIC
+EFI_STATUS
+SdSetIos (
+  IN EFI_MMC_HOST_PROTOCOL      *This,
+  IN  UINT32                    BusClockFreq,
+  IN  UINT32                    BusWidth
+  )
+{
+  EFI_STATUS Status;
+
+  DEBUG ((DEBUG_MMCHOST_SD_INFO, "%a: Setting Freq %u Hz\n", __FUNCTION__, BusClockFreq));
+  DEBUG ((DEBUG_MMCHOST_SD_INFO, "%a: Setting BusWidth %u\n", __FUNCTION__, BusWidth));
+
+  Status = BmSdSetIos (BusClockFreq,BusWidth);
+
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdSetIos Error, Status=%r.\n", Status));
+    return Status;
+  }
+
+  return EFI_SUCCESS;
+}
+
+/**
+  Prepare the SD card for data transfer.
+
+  @param[in]  This       Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+  @param[in]  Lba        Logical Block Address of the starting block to prepare.
+  @param[in]  Length     Number of blocks to prepare.
+  @param[in]  Buffer     Buffer containing the data to be prepared.
+
+  @retval EFI_SUCCESS    The operation completed successfully.
+  @retval Other          The operation failed.
+
+**/
+STATIC
+EFI_STATUS
 SdPrepare (
   IN EFI_MMC_HOST_PROTOCOL    *This,
   IN EFI_LBA                  Lba,
@@ -164,27 +249,37 @@ SdPrepare (
   IN UINTN                    Buffer
   )
 {
-  //DEBUG ((DEBUG_MMCHOST_SD_INFO, "SdHost: SdPrepare(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
-
-  EFI_STATUS Status = EFI_SUCCESS;
+  EFI_STATUS Status;
+  // DEBUG ((DEBUG_MMCHOST_SD, "SdHost: SdPrepare(LBA: 0x%x, Length: 0x%x, Buffer: 0x%x)\n",(UINT32)Lba, Length, Buffer));
 
   Status = BmSdPrepare (Lba, Buffer, Length);
 
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "SdPrepare Error, Status=%r.\n", Status));
+    DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdPrepare Error, Status=%r.\n", Status));
     return Status;
   }
 
   return EFI_SUCCESS;
 }
 
-STATIC EFI_STATUS
+/**
+  Notify the state of the SD card.
+
+  @param[in]  This    Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+  @param[in]  State   State of the SD card.
+
+  @retval EFI_SUCCESS       The operation completed successfully.
+  @retval EFI_NOT_READY     The card detection has not completed yet.
+  @retval Other             The operation failed.
+
+**/
+STATIC
+EFI_STATUS
 SdNotifyState (
   IN EFI_MMC_HOST_PROTOCOL    *This,
   IN MMC_STATE                State
   )
 {
-
   // Stall all operations except init until card detection has occurred.
   if (State != MmcHwInitializationState && mCardDetectState != CardDetectCompleted) {
     return EFI_NOT_READY;
@@ -192,7 +287,7 @@ SdNotifyState (
 
   switch (State) {
     case MmcHwInitializationState:
-      DEBUG ((DEBUG_MMCHOST_SD_INFO, "MmcHwInitializationState\n", State));
+      DEBUG ((DEBUG_MMCHOST_SD, "MmcHwInitializationState\n", State));
 
       EFI_STATUS Status = SdInit (SD_USE_PIO);
       if (EFI_ERROR (Status)) {
@@ -234,7 +329,17 @@ SdNotifyState (
   return EFI_SUCCESS;
 }
 
-STATIC BOOLEAN
+/**
+  Check if an SD card is present.
+
+  @param[in]  This    Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+
+  @retval TRUE        An SD card is present.
+  @retval FALSE       No SD card is present.
+
+**/
+STATIC
+BOOLEAN
 SdIsCardPresent (
   IN EFI_MMC_HOST_PROTOCOL *This
   )
@@ -255,18 +360,26 @@ SdIsCardPresent (
     goto out;
   }
   else {
-    DEBUG ((DEBUG_ERROR, "SdIsCardPresent: Error SdCardDetect.\n"));
+    DEBUG ((DEBUG_MMCHOST_SD_ERROR, "SdIsCardPresent: Error SdCardDetect.\n"));
     mCardDetectState = CardDetectRequired;
     return FALSE;
   }
 
-  DEBUG ((DEBUG_INFO, "SdIsCardPresent: Not detected.\n"));
+  DEBUG ((DEBUG_MMCHOST_SD_INFO, "SdIsCardPresent: Not detected.\n"));
 
 out:
   mCardDetectState = CardDetectCompleted;
   return mCardIsPresent;
 }
 
+/**
+  Check if the SD card supports multi-block transfers.
+
+  @param[in]  This     Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+
+  @retval TRUE         The SD card supports multi-block transfers.
+
+**/
 BOOLEAN
 SdIsMultiBlock (
   IN EFI_MMC_HOST_PROTOCOL *This
@@ -289,14 +402,25 @@ EFI_MMC_HOST_PROTOCOL gMmcHost = {
   SdIsMultiBlock
 };
 
+/**
+  Initialize the SD host.
+
+  @param[in]  ImageHandle    The image handle.
+  @param[in]  SystemTable    The system table.
+
+  @retval EFI_SUCCESS        The operation completed successfully.
+  @retval Other              The operation failed.
+**/
 EFI_STATUS
 SdHostInitialize (
   IN EFI_HANDLE          ImageHandle,
   IN EFI_SYSTEM_TABLE    *SystemTable
   )
 {
-  EFI_STATUS Status;
-  EFI_HANDLE Handle = NULL;
+  EFI_STATUS  Status;
+  EFI_HANDLE  Handle;
+
+  Handle = NULL;
 
   DEBUG ((DEBUG_MMCHOST_SD, "SdHost: Initialize\n"));
 

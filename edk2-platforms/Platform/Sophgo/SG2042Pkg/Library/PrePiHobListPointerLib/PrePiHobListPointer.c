@@ -1,8 +1,10 @@
 /** @file
-*
-*  Copyright (c) 2021, Intel Corporation. All rights reserved.<BR>
-*  SPDX-License-Identifier: BSD-2-Clause-Patent
-*
+  Retrieve and update the pointer to the HOB list in the PrePi phase.
+
+  Copyright (c) 2021, Intel Corporation. All rights reserved.<BR>
+
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
 **/
 
 #include <PiPei.h>

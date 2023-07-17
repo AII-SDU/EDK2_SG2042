@@ -3,7 +3,7 @@
 
   Copyright (c) 2021, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
   Copyright (c) 2006 - 2014, Intel Corporation. All rights reserved.<BR>
-  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
@@ -262,6 +262,10 @@ AddReservedMemoryMap (
   }
 }
 
+/**
+  Mark runtime memory ranges in the EFI memory map
+
+**/
 STATIC
 VOID
 AddRuntimeServicesMemoryMap(
@@ -303,12 +307,16 @@ MemoryPeimInitialization (
   EFI_RISCV_FIRMWARE_CONTEXT  *FirmwareContext;
   CONST UINT64                *RegProp;
   CONST CHAR8                 *Type;
-  UINT64                      CurBase, CurSize;
-  UINT64                      LongestStart = 0, LongestLength = 0;
-  UINT64                      PrevEnd = 0;
-  UINT64                      CurStart = 0, CurLength = 0;
-  UINT64                      MaxLength = 0;
-  INT32                       Node, Prev;
+  UINT64                      CurBase;
+  UINT64                      CurSize;
+  UINT64                      LongestStart;
+  UINT64                      LongestLength;
+  UINT64                      PrevEnd;
+  UINT64                      CurStart;
+  UINT64                      CurLength;
+  UINT64                      MaxLength;
+  INT32                       Node;
+  INT32                       Prev;
   INT32                       Len;
   VOID                        *FdtPointer;
 
@@ -325,6 +333,13 @@ MemoryPeimInitialization (
     DEBUG ((DEBUG_ERROR, "%a: Invalid FDT pointer\n", __func__));
     return EFI_UNSUPPORTED;
   }
+
+  LongestStart  = 0;
+  LongestLength = 0;
+  PrevEnd       = 0;
+  CurStart      = 0;
+  CurLength     = 0;
+  MaxLength     = 0;
 
   // Look for the lowest memory node
   for (Prev = 0; ; Prev = Node) {

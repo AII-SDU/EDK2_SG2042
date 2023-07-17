@@ -1,7 +1,8 @@
 /** @file
+  Definition of the MMC Host Protocol
 
   Copyright (c) 2011-2014, ARM Limited. All rights reserved.
-  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+  Copyright (c) Academy of Intelligent Innovation. All rights reserved.<BR>
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
@@ -187,7 +188,7 @@ EFI_STATUS
   IN  EFI_MMC_HOST_PROTOCOL     *This,
   IN  EFI_LBA                   Lba,
   IN  UINTN                     Length,
-  OUT UINTN                     Buffer
+  IN  UINTN                     Buffer
   );
 
 typedef

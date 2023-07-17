@@ -10,7 +10,7 @@
 [Defines]
   INF_VERSION                    = 0x0001001B
   BASE_NAME                      = BaseResetSystemLib
-  FILE_GUID                      = AB45A200-769D-4C10-B0D6-5E1FF5EEBF31
+  FILE_GUID                      = A7D5E1C3-C405-4FD5-90A6-B6A734E83A28
   MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = ResetSystemLib

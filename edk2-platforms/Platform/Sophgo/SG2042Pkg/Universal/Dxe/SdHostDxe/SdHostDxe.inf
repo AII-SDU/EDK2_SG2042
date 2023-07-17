@@ -7,7 +7,7 @@
 #
 #  Copyright (c) 2015, Intel Corporation. All rights reserved.<BR>
 #  Copyright (C) 2018, Marvell International Ltd. All rights reserved.<BR>
-#  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+#  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
 #
@@ -16,14 +16,14 @@
 [Defines]
   INF_VERSION                    = 0x0001001A
   BASE_NAME                      = SdHostDxe
-  FILE_GUID                      = 17f56b40-f7c1-435c-ab8d-404872da951e
+  FILE_GUID                      = 11322596-DD4F-47FA-9E6C-CE787E11E4B1
   MODULE_TYPE                    = UEFI_DRIVER
   VERSION_STRING                 = 1.0
   ENTRY_POINT                    = SdHostInitialize
 
 [Sources]
-  Sdhci.c
-  Sdhci.h
+  SdHci.c
+  SdHci.h
   SdHostDxe.c 
 
 [Packages]
@@ -42,5 +42,7 @@
   UefiRuntimeServicesTableLib
 
 [Protocols]
-  gSophgoMmcHostProtocolGuid
+  gSophgoMmcHostProtocolGuid        ## PRODUCES
 
+[FixedPcd]
+  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdSG2042SDIOBase        ## CONSUMES

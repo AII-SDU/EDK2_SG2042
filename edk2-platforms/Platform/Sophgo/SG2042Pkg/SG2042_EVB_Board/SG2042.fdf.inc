@@ -2,7 +2,7 @@
 #  Definitions of Flash definition file on Sophgo SG2042 EVB RISC-V platform
 #
 #  Copyright (c) 2021, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
-#  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+#  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
 #
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
@@ -65,7 +65,7 @@ SET gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamSize = 0x10000
 SET gUefiRiscVPkgTokenSpaceGuid.PcdRiscVMachineTimerFrequencyInHerz    = 50000000
 
 SET gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores       = 64
-
+SET gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdSG2042SDIOBase          = 0x704002B000
 SET gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase               = 0x7040000000
 SET gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate                    = 115200
 SET gHisiTokenSpaceGuid.PcdSerialPortSendDelay                         = 10000000

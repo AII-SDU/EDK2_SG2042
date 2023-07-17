@@ -1,10 +1,11 @@
 /** @file
- *
- *  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
- *
- *  SPDX-License-Identifier: BSD-2-Clause-Patent
- *
- **/
+  Block I/O Protocol implementation for MMC/SD cards.
+
+  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
+
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
+**/
 
 #include <Library/BaseMemoryLib.h>
 
@@ -12,7 +13,17 @@
 
 #define MMCI0_BLOCKLEN 512
 #define MMCI0_TIMEOUT  1000
+#define MAX_BUF_LEN    0x1D00000
+#define MAX_BLK_CNT    0xE800
 
+/**
+  Check if the R1 response indicates that the card is in the "Tran" state and ready for data.
+
+  @param[in] Response     Pointer to the R1 response.
+
+  @retval EFI_SUCCESS     The card is in the "Tran" state and ready for data.
+  @retval EFI_NOT_READY   The card is not in the expected state.
+**/
 STATIC
 EFI_STATUS
 R1TranAndReady (
@@ -26,6 +37,19 @@ R1TranAndReady (
   return EFI_NOT_READY;
 }
 
+/**
+  Validate the number of blocks written during a write operation.
+
+  @param[in]  MmcHostInstance      Pointer to the MMC host instance.
+  @param[in]  Count                Expected number of blocks written.
+  @param[out] TransferredBlocks    Actual number of blocks written.
+
+  @retval EFI_SUCCESS              The number of blocks written is valid.
+  @retval EFI_NOT_READY            The card is not in the expected state.
+  @retval EFI_DEVICE_ERROR         The number of blocks written is incorrect.
+  @retval Other                    An error occurred during the validation process.
+
+**/
 STATIC
 EFI_STATUS
 ValidateWrittenBlockCount (
@@ -34,11 +58,11 @@ ValidateWrittenBlockCount (
   OUT UINTN *TransferredBlocks
   )
 {
-  UINT32 R1;
-  UINT8 Data[4];
-  EFI_STATUS Status;
-  UINT32 BlocksWritten;
-  EFI_MMC_HOST_PROTOCOL *MmcHost = MmcHostInstance->MmcHost;
+  UINT32                 R1;
+  UINT8                  Data[4];
+  EFI_STATUS             Status;
+  UINT32                 BlocksWritten;
+  EFI_MMC_HOST_PROTOCOL  *MmcHost;
 
   if (MmcHostInstance->CardInfo.CardType == MMC_CARD ||
       MmcHostInstance->CardInfo.CardType == MMC_CARD_HIGH ||
@@ -50,7 +74,9 @@ ValidateWrittenBlockCount (
     return EFI_SUCCESS;
   }
 
-  Status = MmcHost->SendCommand (MmcHost, MMC_CMD55,
+  MmcHost = MmcHostInstance->MmcHost;
+
+  Status  = MmcHost->SendCommand (MmcHost, MMC_CMD55,
                       MmcHostInstance->CardInfo.RCA << 16, MMC_RESPONSE_R1, &R1);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "%a(%u): error: %r\n", __FUNCTION__, __LINE__, Status));
@@ -96,18 +122,30 @@ ValidateWrittenBlockCount (
   return EFI_SUCCESS;
 }
 
+/**
+  Wait until the card is in the "Tran" state.
+
+  @param[in] MmcHostInstance    Pointer to the MMC host instance.
+
+  @retval EFI_SUCCESS           The card is in the "Tran" state.
+  @retval EFI_NOT_READY         The card is not in the expected state or timed out.
+  @retval Other                 An error occurred during the waiting process.
+
+**/
 STATIC
 EFI_STATUS
 WaitUntilTran (
   IN MMC_HOST_INSTANCE *MmcHostInstance
   )
 {
-  INTN Timeout;
-  UINT32 Response[1];
-  EFI_STATUS Status = EFI_SUCCESS;
-  EFI_MMC_HOST_PROTOCOL *MmcHost = MmcHostInstance->MmcHost;
+  INTN                   Timeout;
+  UINT32                 Response[1];
+  EFI_STATUS             Status;
+  EFI_MMC_HOST_PROTOCOL  *MmcHost;
 
   Timeout = MMCI0_TIMEOUT;
+  Status  = EFI_SUCCESS;
+  MmcHost = MmcHostInstance->MmcHost;
 
   while (Timeout--) {
     /*
@@ -138,6 +176,16 @@ WaitUntilTran (
   return Status;
 }
 
+/**
+  Sets the state of the MMC host instance and invokes the
+  NotifyState function of the MMC host, passing the updated state.
+
+  @param  MmcHostInstance        Pointer to the MMC host instance.
+  @param  State                  The new state to be set for the MMC host instance.
+
+  @retval EFI_STATUS
+
+**/
 EFI_STATUS
 MmcNotifyState (
   IN MMC_HOST_INSTANCE *MmcHostInstance,
@@ -148,6 +196,21 @@ MmcNotifyState (
   return MmcHostInstance->MmcHost->NotifyState (MmcHostInstance->MmcHost, State);
 }
 
+/**
+  Reset the block device.
+
+  This function implements EFI_BLOCK_IO_PROTOCOL.Reset().
+  It resets the block device hardware.
+  ExtendedVerification is ignored in this implementation.
+
+  @param  This                   Indicates a pointer to the calling context.
+  @param  ExtendedVerification   Indicates that the driver may perform a more exhaustive
+                                 verification operation of the device during reset.
+
+  @retval EFI_SUCCESS            The block device was reset.
+  @retval EFI_DEVICE_ERROR       The block device is not functioning correctly and could not be reset.
+
+**/
 EFI_STATUS
 EFIAPI
 MmcReset (
@@ -182,6 +245,15 @@ MmcReset (
   return EFI_SUCCESS;
 }
 
+/**
+  Detect if an MMC card is present.
+
+  @param[in] MmcHost     Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+
+  @retval EFI_NO_MEDIA   No MMC card is present.
+  @retval EFI_SUCCESS    An MMC card is present.
+
+**/
 EFI_STATUS
 MmcDetectCard (
   EFI_MMC_HOST_PROTOCOL *MmcHost
@@ -194,6 +266,15 @@ MmcDetectCard (
   }
 }
 
+/**
+  Stop the current transmission on the MMC bus.
+
+  @param[in] MmcHost    Pointer to the EFI_MMC_HOST_PROTOCOL instance.
+
+  @retval EFI_SUCCESS   The transmission was successfully stopped.
+  @retval Other         An error occurred while stopping the transmission.
+
+**/
 EFI_STATUS
 MmcStopTransmission (
   EFI_MMC_HOST_PROTOCOL *MmcHost
@@ -207,6 +288,24 @@ MmcStopTransmission (
   return Status;
 }
 
+/**
+  Transfer a block of data to or from the MMC device.
+
+  @param[in]     This              Pointer to the EFI_BLOCK_IO_PROTOCOL instance.
+  @param[in]     Cmd               Command to be sent to the MMC device.
+  @param[in]     Transfer          Transfer type (MMC_IOBLOCKS_READ or MMC_IOBLOCKS_WRITE).
+  @param[in]     MediaId           Media ID of the MMC device.
+  @param[in]     Lba               Logical Block Address.
+  @param[in]     BufferSize        Size of the data buffer.
+  @param[out]    Buffer            Pointer to the data buffer.
+  @param[out]    TransferredSize   Number of bytes transferred.
+
+  @retval EFI_SUCCESS              The data transfer was successful.
+  @retval EFI_NOT_READY            The MMC device is not ready for the transfer.
+  @retval EFI_DEVICE_ERROR         An error occurred during the data transfer.
+  @retval Other                    An error occurred during the data transfer.
+
+**/
 STATIC
 EFI_STATUS
 MmcTransferBlock (
@@ -226,7 +325,7 @@ MmcTransferBlock (
   UINTN                   CmdArg;
 
   MmcHostInstance = MMC_HOST_INSTANCE_FROM_BLOCK_IO_THIS (This);
-  MmcHost = MmcHostInstance->MmcHost;
+  MmcHost         = MmcHostInstance->MmcHost;
 
   //Set command argument based on the card access mode (Byte mode or Block mode)
   if ((MmcHostInstance->CardInfo.OCRData.AccessMode & MMC_OCR_ACCESS_MASK) == MMC_OCR_ACCESS_SECTOR) {
@@ -307,6 +406,25 @@ MmcTransferBlock (
   return Status;
 }
 
+/**
+  Perform read or write operations on the MMC device.
+
+  @param[in]     This                    Pointer to the EFI_BLOCK_IO_PROTOCOL instance.
+  @param[in]     Transfer                Transfer type (MMC_IOBLOCKS_READ or MMC_IOBLOCKS_WRITE).
+  @param[in]     MediaId                 Media ID of the MMC device.
+  @param[in]     Lba                     Logical Block Address.
+  @param[in]     BufferSize              Size of the data buffer.
+  @param[out]    Buffer                  Pointer to the data buffer.
+
+  @retval EFI_SUCCESS                    The operation completed successfully.
+  @retval EFI_MEDIA_CHANGED              The MediaId is not the current media.
+  @retval EFI_INVALID_PARAMETER          Invalid parameter passed to the function.
+  @retval EFI_NO_MEDIA                   There is no media present in the MMC device.
+  @retval EFI_WRITE_PROTECTED            The MMC device is write-protected.
+  @retval EFI_BAD_BUFFER_SIZE            The buffer size is not an exact multiple of the block size.
+  @retval Other                          An error occurred during the data transfer.
+
+**/
 EFI_STATUS
 MmcIoBlocks (
   IN EFI_BLOCK_IO_PROTOCOL    *This,
@@ -325,9 +443,10 @@ MmcIoBlocks (
   UINTN                   BlockCount;
   UINTN                   ConsumeSize;
 
-  BlockCount = 1;
+  BlockCount      = 1;
   MmcHostInstance = MMC_HOST_INSTANCE_FROM_BLOCK_IO_THIS (This);
   ASSERT (MmcHostInstance != NULL);
+
   MmcHost = MmcHostInstance->MmcHost;
   ASSERT (MmcHost);
 
@@ -404,16 +523,14 @@ MmcIoBlocks (
       ConsumeSize = BytesRemainingToBeTransfered;
     }
 
-    if(ConsumeSize > 0x1D00000)
-    {
-      ConsumeSize = 0x1D00000;
-      BlockCount = 0xE800;
-    }
-    else
+    if (ConsumeSize > MAX_BUF_LEN) {
+      ConsumeSize = MAX_BUF_LEN;
+      BlockCount  = MAX_BLK_CNT;
+    } else {
       BlockCount = ConsumeSize / This->Media->BlockSize;
+    }
 
-    MmioWrite16(0x704002B000 + 0x04, This->Media->BlockSize);
-    MmioWrite16(0x704002B000 + 0x06, BlockCount);
+    MmcHost->Prepare (MmcHost, Lba, ConsumeSize, (UINTN)Buffer);
 
     Status = MmcTransferBlock (This, Cmd, Transfer, MediaId, Lba, ConsumeSize, Buffer, &ConsumeSize);
     if (EFI_ERROR (Status)) {
@@ -431,6 +548,30 @@ MmcIoBlocks (
   return EFI_SUCCESS;
 }
 
+/**
+  Reads the requested number of blocks from the device.
+
+  This function implements EFI_BLOCK_IO_PROTOCOL.ReadBlocks().
+  It reads the requested number of blocks from the device.
+  All the blocks are read, or an error is returned.
+
+  @param  This                   Indicates a pointer to the calling context.
+  @param  MediaId                The media ID that the read request is for.
+  @param  Lba                    The starting logical block address to read from on the device.
+  @param  BufferSize             The size of the Buffer in bytes.
+                                 This must be a multiple of the intrinsic block size of the device.
+  @param  Buffer                 A pointer to the destination buffer for the data. The caller is
+                                 responsible for either having implicit or explicit ownership of the buffer.
+
+  @retval EFI_SUCCESS            The data was read correctly from the device.
+  @retval EFI_DEVICE_ERROR       The device reported an error while attempting to perform the read operation.
+  @retval EFI_NO_MEDIA           There is no media in the device.
+  @retval EFI_MEDIA_CHANGED      The MediaId is not for the current media.
+  @retval EFI_BAD_BUFFER_SIZE    The BufferSize parameter is not a multiple of the intrinsic block size of the device.
+  @retval EFI_INVALID_PARAMETER  The read request contains LBAs that are not valid,
+                                 or the buffer is not on proper alignment.
+
+**/
 EFI_STATUS
 EFIAPI
 MmcReadBlocks (
@@ -444,6 +585,31 @@ MmcReadBlocks (
   return MmcIoBlocks (This, MMC_IOBLOCKS_READ, MediaId, Lba, BufferSize, Buffer);
 }
 
+/**
+  Writes a specified number of blocks to the device.
+
+  This function implements EFI_BLOCK_IO_PROTOCOL.WriteBlocks().
+  It writes a specified number of blocks to the device.
+  All blocks are written, or an error is returned.
+
+  @param  This                   Indicates a pointer to the calling context.
+  @param  MediaId                The media ID that the write request is for.
+  @param  Lba                    The starting logical block address to be written.
+  @param  BufferSize             The size of the Buffer in bytes.
+                                 This must be a multiple of the intrinsic block size of the device.
+  @param  Buffer                 Pointer to the source buffer for the data.
+
+  @retval EFI_SUCCESS            The data were written correctly to the device.
+  @retval EFI_WRITE_PROTECTED    The device cannot be written to.
+  @retval EFI_NO_MEDIA           There is no media in the device.
+  @retval EFI_MEDIA_CHANGED      The MediaId is not for the current media.
+  @retval EFI_DEVICE_ERROR       The device reported an error while attempting to perform the write operation.
+  @retval EFI_BAD_BUFFER_SIZE    The BufferSize parameter is not a multiple of the intrinsic
+                                 block size of the device.
+  @retval EFI_INVALID_PARAMETER  The write request contains LBAs that are not valid,
+                                 or the buffer is not on proper alignment.
+
+**/
 EFI_STATUS
 EFIAPI
 MmcWriteBlocks (
@@ -457,6 +623,16 @@ MmcWriteBlocks (
   return MmcIoBlocks (This, MMC_IOBLOCKS_WRITE, MediaId, Lba, BufferSize, Buffer);
 }
 
+/**
+  Flushes all modified data to a physical block device.
+
+  @param  This                   Indicates a pointer to the calling context.
+
+  @retval EFI_SUCCESS            All outstanding data were written correctly to the device.
+  @retval EFI_DEVICE_ERROR       The device reported an error while attempting to write data.
+  @retval EFI_NO_MEDIA           There is no media in the device.
+
+**/
 EFI_STATUS
 EFIAPI
 MmcFlushBlocks (

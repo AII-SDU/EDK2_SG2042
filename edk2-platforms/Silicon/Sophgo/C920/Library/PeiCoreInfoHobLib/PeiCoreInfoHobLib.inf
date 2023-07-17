@@ -2,7 +2,7 @@
 #  Library instance to create core information HOB
 #
 #  Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
-#  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+#  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
 ##
@@ -10,7 +10,7 @@
 [Defines]
   INF_VERSION                    = 0x0001001b
   BASE_NAME                      = SiliconSophgoC920CoreInfoLib
-  FILE_GUID                      = 483DE090-267E-4278-A0A1-15D9836780EA
+  FILE_GUID                      = 489011F6-5F5C-F510-A7AA-334D869469E8
   MODULE_TYPE                    = PEIM
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = SiliconSophgoC920CoreInfoLib
@@ -39,8 +39,8 @@
   PrintLib
 
 [FixedPcd]
-  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosGuidHobGuid
-  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType4GuidHobGuid
-  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType7GuidHobGuid
-  gEfiSophgoSiliconTokenSpaceGuid.PcdSophgoSG2042CoreplexGuid
-  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores
+  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosGuidHobGuid             ## CONSUMES
+  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType4GuidHobGuid        ## CONSUMES
+  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType7GuidHobGuid        ## CONSUMES
+  gEfiSophgoSiliconTokenSpaceGuid.PcdSophgoSG2042CoreplexGuid           ## CONSUMES
+  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores          ## CONSUMES

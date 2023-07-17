@@ -316,6 +316,7 @@ FvbGetLbaAddress (
     BlockMap++;
   }
 }
+
 /*++
 
   Routine Description:
@@ -448,6 +449,7 @@ FvbSetVolumeAttributes (
 
   return EFI_SUCCESS;
 }
+
 /*++
 
   Routine Description:

@@ -2,7 +2,7 @@
 #  RISC-V Flattened Device Tree DXE module.
 #
 #  Copyright (c) 2021, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
-#  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+#  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
 #
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
@@ -11,7 +11,7 @@
 [Defines]
   INF_VERSION               = 0x0001001b
   BASE_NAME                 = FdtDxe
-  FILE_GUID                 = a7d8f3f7-d8a7-47df-b3ec-9E5A693C380C
+  FILE_GUID                 = A15D4CAB-635E-4BBD-A52E-A8165F44DA4A
   MODULE_TYPE               = DXE_DRIVER
   VERSION_STRING            = 1.0
   ENTRY_POINT               = InstallFdt
@@ -44,8 +44,8 @@
   FdtDxe.c
 
 [Guids]
-  gFdtHobGuid
-  gFdtTableGuid
+  gFdtHobGuid        ## PRODUCES
+  gFdtTableGuid      ## PRODUCES
 
 [Pcd]
 

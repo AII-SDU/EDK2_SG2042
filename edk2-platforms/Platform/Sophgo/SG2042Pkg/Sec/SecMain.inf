@@ -10,7 +10,7 @@
 [Defines]
   INF_VERSION                    = 0x0001001B
   BASE_NAME                      = SecMainRiscV64
-  FILE_GUID                      = 16740C0A-AA84-4F62-A06D-AE328057AE07
+  FILE_GUID                      = 125E1236-9D4F-457B-BF7E-6311C88A1621
   MODULE_TYPE                    = SEC
   VERSION_STRING                 = 1.0
   ENTRY_POINT                    = SecMain
@@ -51,22 +51,16 @@
   SerialPortLib
   RiscVCoreplexInfoLib
 
-[Ppis]
-  gEfiTemporaryRamSupportPpiGuid # PPI ALWAYS_PRODUCED
-  gEfiTemporaryRamDonePpiGuid    # PPI ALWAYS_PRODUCED
-
 [FixedPcd]
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvSize
-
-[Pcd]
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFirmwareRegionBaseAddress
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFirmwareRegionSize
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamSize
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvBase                         ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvSize                         ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFirmwareRegionBaseAddress      ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFirmwareRegionSize             ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamBase                       ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdTemporaryRamSize                       ## CONSUMES
 
 [Guids]
-  gFdtHobGuid
+  gFdtHobGuid      ## PRODUCES
 
 [BuildOptions]
   GCC:*_*_*_PP_FLAGS = -D__ASSEMBLY__

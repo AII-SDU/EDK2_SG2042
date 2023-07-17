@@ -2,7 +2,7 @@
   Sophgo c920 Core library definitions.
 
   Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
-  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
   
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
@@ -28,8 +28,8 @@
 VOID
 EFIAPI
 CreateC920SmbiosType7L1DataHob (
-  IN UINTN     ProcessorUid,
-  OUT RISC_V_PROCESSOR_TYPE7_HOB_DATA **L1CacheDataHobPtr
+  IN UINTN                             ProcessorUid,
+  OUT RISC_V_PROCESSOR_TYPE7_HOB_DATA  **L1CacheDataHobPtr
 );
 
 /**
@@ -45,8 +45,8 @@ CreateC920SmbiosType7L1DataHob (
 VOID
 EFIAPI
 CreateC920SmbiosType4DataHob (
-  IN UINTN     ProcessorUid,
-  OUT RISC_V_PROCESSOR_TYPE4_HOB_DATA **ProcessorDataHobPtr
+  IN UINTN                             ProcessorUid,
+  OUT RISC_V_PROCESSOR_TYPE4_HOB_DATA  **ProcessorDataHobPtr
 );
 
 #endif

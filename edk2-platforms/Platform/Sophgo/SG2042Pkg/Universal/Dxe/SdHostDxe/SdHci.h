@@ -1,13 +1,17 @@
-/*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/** @file
+  The header file that provides definitions and function declarations
+  related to the SD Host Controller Interface (SDHCI) for SD card host controllers.
+
+  Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
+  SPDX-License-Identifier: BSD-3-Clause
+
+**/
 
 #ifndef _SD_HCI_H_
 #define _SD_HCI_H_
 
-#define SDIO_BASE                       0x704002B000
+#define SDIO_BASE                       (FixedPcdGet32(PcdSG2042SDIOBase))
 #define SDHCI_DMA_ADDRESS               0x00
 #define SDHCI_BLOCK_SIZE                0x04
 #define SDHCI_MAKE_BLKSZ(dma, blksz)    ((((dma) & 0x7) << 12) | ((blksz) & 0xFFF))
@@ -186,7 +190,10 @@ typedef struct {
   @param[in]  RespType  Type of response data.
   @param[out] Response  Response data.
 
-  @retval  EFI_STATUS.
+  @retval  EFI_SUCCESS             The command was sent successfully.
+  @retval  EFI_DEVICE_ERROR        There was an error during the command transmission or response handling.
+  @retval  EFI_TIMEOUT             The command transmission or response handling timed out.
+
 **/
 EFI_STATUS
 EFIAPI
@@ -201,10 +208,10 @@ BmSdSendCmd (
 /**
   Detect the status of the SD card.
 
-  @retval   card detect status
-            -1: haven't check the card detect register
-            0 : no card detected
-            1 : card detected
+  @return The status of the SD card:
+          - SDCARD_STATUS_INSERTED:      The SD card is inserted.
+          - SDCARD_STATUS_NOT_INSERTED:  The SD card is not inserted.
+          - SDCARD_STATUS_UNKNOWN:       The status of the SD card is unknown.
 
 **/
 INT32
@@ -213,12 +220,14 @@ BmSdCardDetect (
   );
 
 /**
-  Set Initialization Operating Condition State of the SD card.
+  Set the input/output settings for the SD card.
 
-  @param[in]  Clk       Clock Frequency.
-  @param[in]  Arg       Bus Width.
+  @param[in] Clk     The clock frequency for the SD card.
+  @param[in] Width   The bus width for data transfer.
 
-  @retval  EFI_STATUS.
+  @retval EFI_SUCCESS             The input/output settings were set successfully.
+  @retval EFI_UNSUPPORTED         The specified bus width is not supported.
+
 **/
 EFI_STATUS 
 BmSdSetIos (
@@ -227,13 +236,16 @@ BmSdSetIos (
   );
 
 /**
+  Prepare the SD card for data transfer. 
   Set the number and size of data blocks before sending IO commands to the SD card.
 
   @param[in]  Lba       Logical Block Address.
   @param[in]  Buf       Buffer Address.
   @param[in]  Size      Size of Data Blocks.
 
-  @retval  EFI_STATUS.
+  @retval EFI_SUCCESS             The SD card was prepared successfully.
+  @retval Other                   An error occurred during the preparation of the SD card.
+
 **/
 EFI_STATUS 
 BmSdPrepare (
@@ -249,7 +261,9 @@ BmSdPrepare (
   @param[in]  Buf       Buffer Address.
   @param[in]  Size      Size of Data Blocks.
 
-  @retval  EFI_STATUS.
+  @retval  EFI_SUCCESS             The command to read data blocks was sent successfully.
+  @retval  EFI_TIMEOUT             The command transmission or data transfer timed out.
+
 **/
 EFI_STATUS 
 BmSdRead (
@@ -265,7 +279,9 @@ BmSdRead (
   @param[in]  Buf       Buffer Address.
   @param[in]  Size      Size of Data Blocks.
 
-  @retval  EFI_STATUS.
+  @retval  EFI_SUCCESS             The command to write data blocks was sent successfully.
+  @retval  EFI_TIMEOUT             The command transmission or data transfer timed out.
+
 **/
 EFI_STATUS 
 BmSdWrite (
@@ -274,12 +290,16 @@ BmSdWrite (
   IN UINTN   Size
   );
 
+/**
+  Initialize the SD card.
 
-VOID 
-SdPhyInit (
-  VOID
-  );
+  This function performs the initialization of the SD card hardware and settings.
 
+  @param[in] Flags     Initialization flags.
+
+  @retval EFI_SUCCESS  The SD card was initialized successfully.
+
+**/
 EFI_STATUS 
 SdInit (  
   IN UINT32  flags

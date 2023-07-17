@@ -1,8 +1,11 @@
-/*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/** @file
+  The implementation for handling SD card operations using the SD Host Controller Interface (SDHCI).
+
+  Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
+  SPDX-License-Identifier: BSD-3-Clause
+
+**/
 
 #include <Uefi.h>
 #include <Base.h>
@@ -15,7 +18,7 @@
 #include <Library/BaseMemoryLib.h>
 #include <Include/MmcHost.h>
 
-#include "Sdhci.h"
+#include "SdHci.h"
 
 #define SDCARD_INIT_FREQ	(200 * 1000)
 #define SDCARD_TRAN_FREQ	(6 * 1000 * 1000)
@@ -33,6 +36,7 @@ STATIC BM_SD_PARAMS BmParams = {
   Return the clock rate of SD card.
 
   @retval the clock rate of SD card.
+
 **/
 INT32 
 BmGetSdClk (
@@ -46,6 +50,11 @@ BmGetSdClk (
   SD card sends command with response block data.
 
   @param    Cmd   Command sent by SD card.
+
+  @retval EFI_SUCCESS             The command with response block data was sent successfully.
+  @retval EFI_DEVICE_ERROR        There was an error during the command transmission or response handling.
+  @retval EFI_TIMEOUT             The command transmission or response handling timed out.
+
 **/
 STATIC 
 EFI_STATUS 
@@ -54,10 +63,15 @@ SdSendCmdWithData (
   )
 {
   UINTN   Base;
-  UINT32  Mode = 0, State, DmaAddr, Flags = 0;
+  UINT32  Mode;
+  UINT32  State;
+  UINT32  DmaAddr;
+  UINT32  Flags;
   UINT32  Timeout;
 
-  Base = BmParams.RegBase;
+  Base  = BmParams.RegBase;
+  Mode  = 0;
+  Flags = 0;
 
   // Make sure Cmd line is clear
   while (1) {
@@ -174,6 +188,11 @@ SdSendCmdWithData (
   SD card sends command without response block data.
 
   @param    Cmd   Command sent by SD card.
+
+  @retval EFI_SUCCESS             The command without response block data was sent successfully.
+  @retval EFI_DEVICE_ERROR        There was an error during the command transmission or response handling.
+  @retval EFI_TIMEOUT             The command transmission or response handling timed out.
+
 **/
 STATIC 
 EFI_STATUS 
@@ -182,10 +201,13 @@ SdSendCmdWithoutData (
   )
 {
   UINTN   Base;
-  UINT32  State, Flags = 0x0;
-  UINT32  Timeout = 10000;
+  UINT32  State;
+  UINT32  Flags;
+  UINT32  Timeout;
 
-  Base = BmParams.RegBase;
+  Base    = BmParams.RegBase;
+  Flags   = 0x0;
+  Timeout = 10000;
 
   // make sure Cmd line is clear
   while (1) {
@@ -264,7 +286,9 @@ SdSendCmdWithoutData (
   @param[in]  RespType  Type of response data.
   @param[out] Response  Response data.
 
-  @retval  EFI_STATUS.
+  @retval  EFI_SUCCESS             The command was sent successfully.
+  @retval  EFI_DEVICE_ERROR        There was an error during the command transmission or response handling.
+  @retval  EFI_TIMEOUT             The command transmission or response handling timed out.
 
 **/
 EFI_STATUS
@@ -276,14 +300,15 @@ BmSdSendCmd (
   OUT UINT32 *Response
   )
 {
-	// DEBUG ((DEBUG_INFO, "%a: SDHCI Cmd, Idx=%d, arg=0x%x, ResponseType=0x%x\n", __FUNCTION__, idx, arg, RespType));
-  MMC_CMD Cmd;
-  EFI_STATUS Status;
+  EFI_STATUS  Status;
+  MMC_CMD     Cmd;
+
+  // DEBUG ((DEBUG_INFO, "%a: SDHCI Cmd, Idx=%d, Arg=0x%x, ResponseType=0x%x\n", __FUNCTION__, Idx, Arg, RespType));
 
   ZeroMem(&Cmd,sizeof(MMC_CMD));
 
-  Cmd.CmdIdx = Idx;
-  Cmd.CmdArg = Arg;
+  Cmd.CmdIdx       = Idx;
+  Cmd.CmdArg       = Arg;
   Cmd.ResponseType = RespType;
 
   switch (Cmd.CmdIdx) {
@@ -311,16 +336,18 @@ BmSdSendCmd (
   Set clock frequency of SD card.
 
   @param[in] Clk       The clock frequency of SD card.
+
 **/
 VOID 
 SdSetClk (
   IN INT32 Clk
   )
 {
-  INT32  I, Div;
+  INT32  I;
+  INT32  Div;
   UINTN  Base;
 
-  ASSERT(Clk > 0);
+  ASSERT (Clk > 0);
 
   if (BmParams.ClkRate <= Clk) {
     Div = 0;
@@ -330,7 +357,7 @@ SdSetClk (
         break;
     }
   }
-  ASSERT(Div <= 0xFF);
+  ASSERT (Div <= 0xFF);
 
   Base = BmParams.RegBase;
   if (MmioRead16 (Base + SDHCI_HOST_CONTROL2) & (1 << 15)) {
@@ -371,16 +398,18 @@ SdSetClk (
   Change clock frequency of SD card.
 
   @param[in] Clk       The clock frequency of SD card.
+
 **/
 VOID 
 SdChangeClk (
   IN INT32 Clk
   )
 {
-  INT32 I, Div;
-  UINTN Base;
+  INT32  I;
+  INT32  Div;
+  UINTN  Base;
 
-  ASSERT(Clk > 0);
+  ASSERT (Clk > 0);
 
   if (BmParams.ClkRate <= Clk) {
     Div = 0;
@@ -390,7 +419,7 @@ SdChangeClk (
         break;
     }
   }
-  ASSERT(Div <= 0xFF);
+  ASSERT (Div <= 0xFF);
 
   Base = BmParams.RegBase;
 
@@ -401,16 +430,15 @@ SdChangeClk (
           MmioRead16 (Base + SDHCI_CLK_CTRL) & ~0x8); // disable  PLL_ENABLE
 
   if (MmioRead16 (Base + SDHCI_HOST_CONTROL2) & (1 << 15)) {
-    //verbose("Use SDCLK Preset Value\n");
     MmioWrite16 (Base + SDHCI_HOST_CONTROL2,
             MmioRead16 (Base + SDHCI_HOST_CONTROL2) & ~0x7); // clr UHS_MODE_SEL
   } else {
-    //verbose("Set SDCLK by driver. Div=0x%x(%d)\n", Div, Div);
     MmioWrite16 (Base + SDHCI_CLK_CTRL,
             (MmioRead16 (Base + SDHCI_CLK_CTRL) & 0xDF) | Div << 8); // set Clk Div
     MmioWrite16 (Base + SDHCI_CLK_CTRL,
             MmioRead16 (Base + SDHCI_CLK_CTRL) & ~(0x1 << 5)); // CLK_GEN_SELECT
   }
+
   MmioWrite16 (Base + SDHCI_CLK_CTRL,
           MmioRead16 (Base + SDHCI_CLK_CTRL) | 0xc); // enable  PLL_ENABLE
 
@@ -424,12 +452,12 @@ SdChangeClk (
 }
 
 /**
-  Detect the Status of the SD card.
+  Detect the status of the SD card.
 
-  @retval   card detect Status
-            -1: haven't check the card detect register
-            0 : no card detected
-            1 : card detected
+  @return The status of the SD card:
+          - SDCARD_STATUS_INSERTED:      The SD card is inserted.
+          - SDCARD_STATUS_NOT_INSERTED:  The SD card is not inserted.
+          - SDCARD_STATUS_UNKNOWN:       The status of the SD card is unknown.
 
 **/
 INT32
@@ -437,7 +465,8 @@ BmSdCardDetect (
   VOID
   )
 {
-  UINTN Base, Reg;
+  UINTN  Base;
+  UINTN  Reg;
 
   Base = BmParams.RegBase;
 
@@ -459,6 +488,7 @@ BmSdCardDetect (
 
 /**
   SD card hardware initialization.
+
 **/
 STATIC 
 VOID 
@@ -466,11 +496,10 @@ SdHwInit (
   VOID
   )
 {
-  UINTN Base, VendorBase;
+  UINTN  Base;
 
-  Base = BmParams.RegBase;
-  VendorBase = Base + (MmioRead16 (Base + P_VENDOR_SPECIFIC_AREA) & ((1 << 12) - 1));
-  BmParams.VendorBase = VendorBase;
+  Base                = BmParams.RegBase;
+  BmParams.VendorBase = Base + (MmioRead16 (Base + P_VENDOR_SPECIFIC_AREA) & ((1 << 12) - 1));
 
   // deasset reset of phy
   MmioWrite32 (Base + SDHCI_P_PHY_CNFG, MmioRead32 (Base + SDHCI_P_PHY_CNFG) | (1 << PHY_CNFG_PHY_RSTN));
@@ -506,7 +535,7 @@ SdHwInit (
           MmioRead8 (Base + SDHCI_PWR_CONTROL) | 0x1); // set SD_BUS_PWR_VDD1
   MmioWrite16 (Base + SDHCI_HOST_CONTROL2,
           MmioRead16 (Base + SDHCI_HOST_CONTROL2) & ~0x7); // clr UHS_MODE_SEL
-  SdSetClk(SDCARD_INIT_FREQ);
+  SdSetClk (SDCARD_INIT_FREQ);
   gBS->Stall (50000);
 
   MmioWrite16 (Base + SDHCI_CLK_CTRL,
@@ -523,12 +552,14 @@ SdHwInit (
 }
 
 /**
-  Set Initialization Operating Condition State of the SD card.
+  Set the input/output settings for the SD card.
 
-  @param[in]  Clk       clock frequency.
-  @param[in]  Arg       bus width.
+  @param[in] Clk     The clock frequency for the SD card.
+  @param[in] Width   The bus width for data transfer.
 
-  @retval  EFI_STATUS.
+  @retval EFI_SUCCESS             The input/output settings were set successfully.
+  @retval EFI_UNSUPPORTED         The specified bus width is not supported.
+
 **/
 EFI_STATUS 
 BmSdSetIos (
@@ -557,13 +588,16 @@ BmSdSetIos (
 }
 
 /**
+  Prepare the SD card for data transfer. 
   Set the number and size of data blocks before sending IO commands to the SD card.
 
   @param[in]  Lba       Logical Block Address.
   @param[in]  Buf       Buffer Address.
   @param[in]  Size      Size of Data Blocks.
 
-  @retval  EFI_STATUS.
+  @retval EFI_SUCCESS             The SD card was prepared successfully.
+  @retval Other                   An error occurred during the preparation of the SD card.
+
 **/
 EFI_STATUS 
 BmSdPrepare (
@@ -572,23 +606,26 @@ BmSdPrepare (
   IN UINTN Size
   )
 {
-  UINTN   LoadAddr = Buf;
+  UINTN   LoadAddr;
   UINTN   Base;
-  UINT32  BlockCnt, BlockSize;
+  UINT32  BlockCnt;
+  UINT32  BlockSize;
   UINT8   Tmp;
+
+  LoadAddr = Buf;
 
   // FlushDataCache (buf,size);
 
   if (Size >= MMC_BLOCK_SIZE) {
     // CMD17, 18, 24, 25
-    ASSERT(((LoadAddr & MMC_BLOCK_MASK) == 0) && ((Size % MMC_BLOCK_SIZE) == 0));
+    // ASSERT (((LoadAddr & MMC_BLOCK_MASK) == 0) && ((Size % MMC_BLOCK_SIZE) == 0));
     BlockSize = MMC_BLOCK_SIZE;
-    BlockCnt = Size / MMC_BLOCK_SIZE;
+    BlockCnt  = Size / MMC_BLOCK_SIZE;
   } else {
     // ACMD51
-    ASSERT(((LoadAddr & 8) == 0) && ((Size % 8) == 0));
+    ASSERT (((LoadAddr & 8) == 0) && ((Size % 8) == 0));
     BlockSize = 8;
-    BlockCnt = Size / 8;
+    BlockCnt  = Size / 8;
   }
 
   Base = BmParams.RegBase;
@@ -628,7 +665,9 @@ BmSdPrepare (
   @param[in]  Buf       Buffer Address.
   @param[in]  Size      Size of Data Blocks.
 
-  @retval  EFI_STATUS.
+  @retval  EFI_SUCCESS             The command to read data blocks was sent successfully.
+  @retval  EFI_TIMEOUT             The command transmission or data transfer timed out.
+
 **/
 EFI_STATUS 
 BmSdRead (
@@ -637,16 +676,23 @@ BmSdRead (
   IN UINTN   Size
   )
 {
-  UINT32  Timeout = 0;
-  UINTN   Base = BmParams.RegBase;
-  UINT32  *Data = Buf;
-  UINT32  BlockSize = 0;
-  UINT32  BlockCnt = 0;
-  UINT32  Status = 0;
+  UINT32  Timeout;
+  UINTN   Base;
+  UINT32  *Data;
+  UINT32  BlockSize;
+  UINT32  BlockCnt;
+  UINT32  Status;
+
+  Timeout   = 0;
+  Base      = BmParams.RegBase;
+  Data      = Buf;
+  BlockSize = 0;
+  BlockCnt  = 0;
+  Status    = 0;
 
   if (BmParams.Flags & SD_USE_PIO) {
     BlockSize = MmioRead16 (Base + SDHCI_BLOCK_SIZE);
-    BlockCnt = Size / BlockSize;
+    BlockCnt  = Size / BlockSize;
     BlockSize /= 4;
 
     for (INT32 I = 0; I < BlockCnt; ) {
@@ -704,7 +750,9 @@ Timeout:
   @param[in]  Buf       Buffer Address.
   @param[in]  Size      Size of Data Blocks.
 
-  @retval  EFI_STATUS.
+  @retval  EFI_SUCCESS             The command to write data blocks was sent successfully.
+  @retval  EFI_TIMEOUT             The command transmission or data transfer timed out.
+
 **/
 EFI_STATUS 
 BmSdWrite (
@@ -713,12 +761,19 @@ BmSdWrite (
   IN UINTN   Size
   )
 {
-  UINT32  Timeout = 0;
-  UINTN   Base = BmParams.RegBase;
-  UINT32  *Data = Buf;
-  UINT32  BlockSize = 0;
-  UINT32  BlockCnt = 0;
-  UINT32  Status = 0;
+  UINT32  Timeout;
+  UINTN   Base;
+  UINT32  *Data;
+  UINT32  BlockSize;
+  UINT32  BlockCnt;
+  UINT32  Status;
+
+  Timeout   = 0;
+  Base      = BmParams.RegBase;
+  Data      = Buf;
+  BlockSize = 0;
+  BlockCnt  = 0;
+  Status    = 0;
 
   if (BmParams.Flags & SD_USE_PIO) {
     BlockSize = MmioRead16 (Base + SDHCI_BLOCK_SIZE);
@@ -777,13 +832,22 @@ Timeout:
   return EFI_TIMEOUT;
 }
 
+/**
+  Initialize the SD PHY.
+
+  This function performs the initialization of the SD PHY hardware.
+
+**/
 VOID
 SdPhyInit (
 	VOID
   )
 {
-  UINTN Base = SDIO_BASE;
-  INT32 RetryCount = 100;
+  UINTN Base;
+  INT32 RetryCount;
+
+  Base       = SDIO_BASE;
+  RetryCount = 100;
 
   // reset hardware
   MmioWrite8 (Base + SDHCI_SOFTWARE_RESET, 0x7);
@@ -846,6 +910,16 @@ SdPhyInit (
   return;
 }
 
+/**
+  Initialize the SD card.
+
+  This function performs the initialization of the SD card hardware and settings.
+
+  @param[in] Flags     Initialization flags.
+
+  @retval EFI_SUCCESS  The SD card was initialized successfully.
+
+**/
 EFI_STATUS
 SdInit (
   IN UINT32 Flags
@@ -853,7 +927,7 @@ SdInit (
 {
   BmParams.ClkRate = BmGetSdClk ();
 
-  DEBUG((DEBUG_INFO, "SD initializing %dHz\n", BmParams.ClkRate));
+  DEBUG ((DEBUG_INFO, "SD initializing %dHz\n", BmParams.ClkRate));
 
   BmParams.Flags = Flags;
 

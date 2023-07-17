@@ -1,13 +1,12 @@
 /** @file
- *
- *  Main Header file for the MMC DXE driver
- *
- *  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
- *  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
- *
- *  SPDX-License-Identifier: BSD-2-Clause-Patent
- *
- **/
+  Main Header file for the MMC DXE driver
+
+  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
+
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
+**/
 
 #ifndef __MMC_H
 #define __MMC_H
@@ -412,17 +411,43 @@ MmcFlushBlocks (
   IN EFI_BLOCK_IO_PROTOCOL  *This
   );
 
+/**
+  Sets the state of the MMC host instance and invokes the
+  NotifyState function of the MMC host, passing the updated state.
+
+  @param  MmcHostInstance        Pointer to the MMC host instance.
+  @param  State                  The new state to be set for the MMC host instance.
+
+  @retval EFI_STATUS
+
+**/
 EFI_STATUS
 MmcNotifyState (
   IN MMC_HOST_INSTANCE      *MmcHostInstance,
   IN MMC_STATE               State
   );
 
+/**
+  Initialize the MMC device.
+
+  @param[in] MmcHostInstance   MMC host instance
+
+  @retval EFI_SUCCESS          MMC device initialized successfully
+  @retval Other                MMC device initialization failed
+
+**/
 EFI_STATUS
 InitializeMmcDevice (
   IN  MMC_HOST_INSTANCE     *MmcHost
   );
 
+/**
+  Callback function to check MMC cards.
+
+  @param[in] Event    The event that is being triggered
+  @param[in] Context  The context passed to the event
+
+**/
 VOID
 EFIAPI
 CheckCardsCallback (
@@ -430,26 +455,56 @@ CheckCardsCallback (
   IN  VOID        *Context
   );
 
+/**
+  Print the Card Specific Data (CSD).
+
+  @param[in] Csd    Pointer to the CSD array
+
+**/
 VOID
 PrintCSD (
   IN UINT32* Csd
   );
 
+/**
+  Print the Relative Card Address (RCA).
+
+  @param[in] Rca    The Relative Card Address (RCA) value
+
+**/
 VOID
 PrintRCA (
   IN UINT32 Rca
   );
 
+/**
+  Print the Operation Condition Register (OCR).
+
+  @param[in] Ocr    The Operation Condition Register (OCR) value.
+
+**/
 VOID
 PrintOCR (
   IN UINT32 Ocr
   );
 
+/**
+  Print the R1 response.
+
+  @param[in] Response   The R1 response value.
+
+**/
 VOID
 PrintResponseR1 (
   IN  UINT32 Response
   );
 
+/**
+  Print the Card Identification (CID) register.
+
+  @param[in] Cid    Pointer to the CID array.
+
+**/
 VOID
 PrintCID (
   IN UINT32* Cid

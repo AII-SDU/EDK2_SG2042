@@ -1,13 +1,12 @@
 /** @file
- *
- *  Main file of the MMC Dxe driver. The driver entrypoint is defined into this file.
- *
- *  Copyright (c) 2011-2013, ARM Limited. All rights reserved.
- *  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
- *
- *  SPDX-License-Identifier: BSD-2-Clause-Patent
- *
- **/
+  Main file of the MMC Dxe driver. The driver entrypoint is defined into this file.
+
+  Copyright (c) 2011-2013, ARM Limited. All rights reserved.
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
+
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
+**/
 
 #include <Protocol/DevicePath.h>
 
@@ -57,7 +56,10 @@ InitializeMmcHostPool (
 }
 
 /**
-  Insert a new Mmc Host controller to the pool
+  Insert a new Mmc Host controller to the pool.
+
+  @param  MmcHostInstance  The MMC_HOST_INSTANCE to be inserted into the pool.
+
 **/
 VOID
 InsertMmcHost (
@@ -67,9 +69,12 @@ InsertMmcHost (
   InsertTailList (&mMmcHostPool, &(MmcHostInstance->Link));
 }
 
-/*
-  Remove a new Mmc Host controller to the pool
-*/
+/**
+  Remove a new Mmc Host controller to the pool.
+
+  @param  MmcHostInstance  The MMC_HOST_INSTANCE to be removed from the pool.
+
+**/
 VOID
 RemoveMmcHost (
   IN MMC_HOST_INSTANCE      *MmcHostInstance
@@ -78,7 +83,17 @@ RemoveMmcHost (
   RemoveEntryList (&(MmcHostInstance->Link));
 }
 
-MMC_HOST_INSTANCE* CreateMmcHostInstance (
+/**
+  This function creates a new MMC host controller instance and initializes its members.
+  It allocates memory for the instance, sets the necessary fields, 
+  and installs the BlockIO and DevicePath protocols.
+
+  @param   MmcHost  The EFI_MMC_HOST_PROTOCOL instance representing the MMC host.
+
+  @return  A pointer to the created MMC_HOST_INSTANCE on success, or NULL on failure.
+**/
+MMC_HOST_INSTANCE* 
+CreateMmcHostInstance (
   IN EFI_MMC_HOST_PROTOCOL* MmcHost
   )
 {
@@ -148,7 +163,18 @@ FREE_INSTANCE:
   return NULL;
 }
 
-EFI_STATUS DestroyMmcHostInstance (
+/**
+  This function uninstalls the BlockIO and DevicePath protocols from the MMC host controller instance,
+  and frees the memory allocated for the instance and its associated resources.
+
+  @param   MmcHostInstance  The MMC_HOST_INSTANCE to be destroyed.
+
+  @retval  EFI_SUCCESS      The instance is successfully destroyed.
+  @retval  Other            The instance cannot be destroyed.
+
+**/
+EFI_STATUS 
+DestroyMmcHostInstance (
   IN MMC_HOST_INSTANCE* MmcHostInstance
   )
 {
@@ -176,7 +202,14 @@ EFI_STATUS DestroyMmcHostInstance (
 }
 
 /**
-  This function checks if the controller implement the Mmc Host and the Device Path Protocols
+  This function checks if the controller implement the Mmc Host and the Device Path Protocols.
+
+  @param  This                 A pointer to the EFI_DRIVER_BINDING_PROTOCOL instance.
+  @param  Controller           The handle of the controller to check for support.
+  @param  RemainingDevicePath  A pointer to the remaining portion of the device path.
+
+  @retval EFI_SUCCESS          The controller is supported.
+  @retval EFI_UNSUPPORTED      The controller is unsupported.
 **/
 EFI_STATUS
 EFIAPI
@@ -245,6 +278,14 @@ MmcDriverBindingSupported (
 }
 
 /**
+  This function opens the Mmc Host Protocol, creates an MMC_HOST_INSTANCE, and adds it to the MMC host pool.
+
+  @param  This                 A pointer to the EFI_DRIVER_BINDING_PROTOCOL instance.
+  @param  Controller           The handle of the controller to start the driver on.
+  @param  RemainingDevicePath  A pointer to the remaining portion of the device path.
+
+  @retval  EFI_SUCCESS         The driver is successfully started.
+  @retval  Other               The driver failed to start.
 
 **/
 EFI_STATUS
@@ -306,6 +347,15 @@ MmcDriverBindingStart (
 }
 
 /**
+  This function closes the Mmc Host Protocol, removes the MMC_HOST_INSTANCE from the pool, and destroys the instance.
+
+  @param  This               A pointer to the EFI_DRIVER_BINDING_PROTOCOL instance.
+  @param  Controller         The handle of the controller to stop the driver on.
+  @param  NumberOfChildren   The number of children handles.
+  @param  ChildHandleBuffer  An array of child handles.
+
+  @retval  EFI_SUCCESS       The driver is successfully stopped.
+  @retval  Other             The driver failed to stop.
 
 **/
 EFI_STATUS
@@ -347,6 +397,13 @@ MmcDriverBindingStop (
   return Status;
 }
 
+/**
+  Callback function to check MMC cards.
+
+  @param[in] Event    The event that is being triggered
+  @param[in] Context  The context passed to the event
+
+**/
 VOID
 EFIAPI
 CheckCardsCallback (
@@ -404,6 +461,15 @@ EFI_DRIVER_BINDING_PROTOCOL gMmcDriverBinding = {
 };
 
 /**
+  This function is the entry point of the MMC DXE driver.
+  It initializes the MMC host pool, installs driver model protocols,
+  driver diagnostics, and sets up a timer for card detection.
+
+  @param  ImageHandle  The image handle of the driver.
+  @param  SystemTable  A pointer to the EFI system table.
+
+  @retval  EFI_SUCCESS       The driver is successfully initialized.
+  @retval  Other             The driver failed to initialize.
 
 **/
 EFI_STATUS

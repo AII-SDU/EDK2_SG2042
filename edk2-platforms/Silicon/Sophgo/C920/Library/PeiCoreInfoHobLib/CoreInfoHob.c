@@ -2,7 +2,7 @@
   Build up platform processor information of Sophgo C920 core.
 
   Copyright (c) 2019 - 2021, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
-  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
@@ -33,8 +33,8 @@ CreateC920SmbiosType7L1DataHob (
   OUT RISC_V_PROCESSOR_TYPE7_HOB_DATA **L1CacheDataHobPtr
   )
 {
-  EFI_GUID *GuidPtr;
-  RISC_V_PROCESSOR_TYPE7_HOB_DATA L1CacheDataHob;
+  EFI_GUID                         *GuidPtr;
+  RISC_V_PROCESSOR_TYPE7_HOB_DATA  L1CacheDataHob;
 
   //
   // Build up SMBIOS type 7 L1 cache record.
@@ -81,8 +81,8 @@ CreateC920SmbiosType4DataHob (
   OUT RISC_V_PROCESSOR_TYPE4_HOB_DATA **ProcessorDataHobPtr
   )
 {
-  EFI_GUID *GuidPtr;
-  RISC_V_PROCESSOR_TYPE4_HOB_DATA ProcessorDataHob;
+  EFI_GUID                         *GuidPtr;
+  RISC_V_PROCESSOR_TYPE4_HOB_DATA  ProcessorDataHob;
 
   //
   // Build up SMBIOS type 4 record.

@@ -2,7 +2,7 @@
 #  RISC-V EFI on Sophgo SG2042 EVB RISC-V platform
 #
 #  Copyright (c) 2019-2021, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
-#  Copyright (c) 2023, 山东大学智能创新研究院（Academy of Intelligent Innovation）. All rights reserved.<BR>
+#  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
 #
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
@@ -15,7 +15,7 @@
 ################################################################################
 [Defines]
   PLATFORM_NAME                  = SG2042_EVB
-  PLATFORM_GUID                  = 8317E90F-428B-403F-9057-112B0C19008E
+  PLATFORM_GUID                  = 8014637B-6999-4110-9762-464BE11E935F
   PLATFORM_VERSION               = 0.1
   DSC_SPECIFICATION              = 0x0001001c
   OUTPUT_DIRECTORY               = Build/$(PLATFORM_NAME)
