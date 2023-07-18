@@ -1,10 +1,11 @@
 /** @file
- *
- *  Copyright (c) 2011-2013, ARM Limited. All rights reserved.
- *
- *  SPDX-License-Identifier: BSD-2-Clause-Patent
- *
- **/
+  Provides debug functions for MMC/SD card operations.
+
+  Copyright (c) 2011-2013, ARM Limited. All rights reserved.
+
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
+**/
 
 #include "Mmc.h"
 
@@ -16,6 +17,12 @@ CONST CHAR8* mStrValue[] = { "1.0", "1.2", "1.3", "1.5", "2.0", "2.5",
                              "6.0", "7.0", "8.0" };
 #endif
 
+/**
+  Print the Card Identification (CID) register.
+
+  @param[in] Cid    Pointer to the CID array.
+
+**/
 VOID
 PrintCID (
   IN UINT32* Cid
@@ -29,7 +36,12 @@ PrintCID (
   DEBUG ((DEBUG_ERROR, "\t- OEM ID: %c%c\n", (Cid[3] >> 8) & 0xFF, (Cid[3] >> 16) & 0xFF));
 }
 
+/**
+  Print the Card Specific Data (CSD).
 
+  @param[in] Csd    Pointer to the CSD array
+
+**/
 VOID
 PrintCSD (
   IN UINT32* Csd
@@ -67,6 +79,12 @@ PrintCSD (
   }
 }
 
+/**
+  Print the Relative Card Address (RCA).
+
+  @param[in] Rca    The Relative Card Address (RCA) value
+
+**/
 VOID
 PrintRCA (
   IN UINT32 Rca
@@ -77,6 +95,12 @@ PrintRCA (
   DEBUG ((DEBUG_ERROR, "\t- RCA: 0x%X\n", (Rca >> 16) & 0xFFFF));
 }
 
+/**
+  Print the Operation Condition Register (OCR).
+
+  @param[in] Ocr    The Operation Condition Register (OCR) value
+
+**/
 VOID
 PrintOCR (
   IN UINT32 Ocr
@@ -119,6 +143,12 @@ PrintOCR (
   }
 }
 
+/**
+  Print the R1 response.
+
+  @param[in] Response   The R1 response value.
+
+**/
 VOID
 PrintResponseR1 (
   IN  UINT32 Response

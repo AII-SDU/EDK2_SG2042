@@ -22,6 +22,21 @@
 #include "FwBlockService.h"
 #include "RamFlash.h"
 
+/*++
+
+  Routine Description:
+
+    Install the firmware volume block protocol and device path for the given FVB device.
+
+  Arguments:
+
+    FvbDevice  - Pointer to the EFI_FW_VOL_BLOCK_DEVICE structure representing the FVB device.
+
+  Returns:
+
+    None
+
+--*/
 VOID
 InstallProtocolInterfaces (
   IN EFI_FW_VOL_BLOCK_DEVICE *FvbDevice
@@ -129,7 +144,21 @@ FvbVirtualAddressChangeEvent (
   RamFlashConvertPointers ();
 }
 
+/*++
 
+  Routine Description:
+
+    Install a virtual address change event handler.
+
+  Arguments:
+
+    None
+
+  Returns:
+
+    None
+
+--*/
 VOID
 InstallVirtualAddressChangeHandler (
   VOID

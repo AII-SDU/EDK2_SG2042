@@ -1,0 +1,46 @@
+## @file
+#  Library instance to create core information HOB
+#
+#  Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
+#  Copyright (c) 2023, Academy of Intelligent Innovation. All rights reserved.<BR>
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001b
+  BASE_NAME                      = SiliconSophgoC920CoreInfoLib
+  FILE_GUID                      = 489011F6-5F5C-F510-A7AA-334D869469E8
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SiliconSophgoC920CoreInfoLib
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = RISCV64
+#
+
+[Sources]
+ CoreInfoHob.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  Silicon/RISC-V/ProcessorPkg/RiscVProcessorPkg.dec
+  Platform/RISC-V/PlatformPkg/RiscVPlatformPkg.dec
+  Platform/Sophgo/SG2042Pkg/SG2042Pkg.dec
+  Silicon/Sophgo/Sophgo.dec
+
+[LibraryClasses]
+  BaseLib
+  PcdLib
+  MemoryAllocationLib
+  PrintLib
+
+[FixedPcd]
+  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosGuidHobGuid             ## CONSUMES
+  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType4GuidHobGuid        ## CONSUMES
+  gUefiRiscVPkgTokenSpaceGuid.PcdProcessorSmbiosType7GuidHobGuid        ## CONSUMES
+  gEfiSophgoSiliconTokenSpaceGuid.PcdSophgoSG2042CoreplexGuid           ## CONSUMES
+  gSophgoSG2042PlatformsPkgTokenSpaceGuid.PcdNumberofC920Cores          ## CONSUMES

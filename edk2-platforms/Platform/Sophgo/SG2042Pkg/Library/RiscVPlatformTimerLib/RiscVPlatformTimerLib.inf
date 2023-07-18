@@ -1,5 +1,5 @@
 ## @file
-# RISC-V CPU lib to override timer mechanism for U5 series platform.
+# RISC-V CPU lib to override timer mechanism for SG2042 platform.
 #
 # Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
 #
@@ -10,7 +10,7 @@
 [Defines]
   INF_VERSION                    = 0x0001001b
   BASE_NAME                      = RiscVPlatformTimerLib
-  FILE_GUID                      = AFA75BBD-DE9D-4E77-BD88-1EA401BE931D
+  FILE_GUID                      = AE78F934-FBBB-4428-8AB3-F69A1FA41D73
   MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = RiscVPlatformTimerLib

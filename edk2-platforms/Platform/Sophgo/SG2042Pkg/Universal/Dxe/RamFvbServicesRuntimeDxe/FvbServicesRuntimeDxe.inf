@@ -14,7 +14,7 @@
 [Defines]
   INF_VERSION                    = 0x0001001b
   BASE_NAME                      = FvbServicesRuntimeDxe
-  FILE_GUID                      = B04036D3-4C60-43D6-9850-0FCC090FF054
+  FILE_GUID                      = B8753CC1-D427-47B4-A8EF-5E9FFDBA4CF6
   MODULE_TYPE                    = DXE_RUNTIME_DRIVER
   VERSION_STRING                 = 1.0
   ENTRY_POINT                    = FvbInitialize
@@ -63,22 +63,22 @@
   gEfiGetPcdInfoProtocolGuid                    # SOMETIMES_CONSUMES
 
 [FixedPcd]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize                        ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize                      ## CONSUMES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize                        ## CONSUMES
 
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdPlatformFlashNvStorageVariableBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdPlatformFlashNvStorageFtwWorkingBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdPlatformFlashNvStorageFtwSpareBase
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFdBaseAddress
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFdSize
-  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFdBlockSize
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdPlatformFlashNvStorageVariableBase           ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdPlatformFlashNvStorageFtwWorkingBase         ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdPlatformFlashNvStorageFtwSpareBase           ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFdBaseAddress                        ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFdSize                               ## CONSUMES
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdVariableFdBlockSize                          ## CONSUMES
 
 [Pcd]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase        ## PRODUCES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase          ## PRODUCES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase          ## PRODUCES
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64        ## PRODUCES
 
 [Depex]
   gEfiPcdProtocolGuid

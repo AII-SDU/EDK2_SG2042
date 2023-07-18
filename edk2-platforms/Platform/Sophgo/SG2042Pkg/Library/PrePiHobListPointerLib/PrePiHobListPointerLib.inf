@@ -1,0 +1,26 @@
+## @file
+#  Library instance for PrePiHobListPointerLib, providing functions to 
+#  retrieve and update the pointer to the HOB list during the PrePi phase.
+#
+#  Copyright (c) 2021, Intel Corporation. All rights reserved.<BR>
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001B
+  BASE_NAME                      = PrePiHobListPointerLib
+  FILE_GUID                      = D5EF988B-5E98-48D4-BB8A-35D18E1F851B
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = PrePiHobListPointerLib
+
+[Sources.RISCV64]
+  PrePiHobListPointer.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  OvmfPkg/OvmfPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec

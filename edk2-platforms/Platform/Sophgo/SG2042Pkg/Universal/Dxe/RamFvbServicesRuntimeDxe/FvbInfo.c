@@ -90,6 +90,17 @@ EFI_FVB_MEDIA_INFO  mPlatformFvbMediaInfo[] = {
   }
 };
 
+/**
+  Get the firmware volume information for a given firmware volume length.
+
+  @param[in]      FvLength              Length of the firmware volume.
+  @param[out]     FvbInfo               Pointer to the firmware volume information.
+
+  @retval EFI_SUCCESS                   The firmware volume information was retrieved successfully.
+  @retval EFI_NOT_FOUND                 The firmware volume information for the given length was not found.
+  @retval Other                         An error occurred while retrieving the firmware volume information.
+
+**/
 EFI_STATUS
 GetFvbInfo (
   IN  UINT64                        FvLength,

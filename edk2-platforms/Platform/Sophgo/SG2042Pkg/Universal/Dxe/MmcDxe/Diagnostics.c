@@ -1,12 +1,11 @@
 /** @file
- *
- *  Diagnostics Protocol implementation for the MMC DXE driver
- *
- *  Copyright (c) 2011-2014, ARM Limited. All rights reserved.
- *
- *  SPDX-License-Identifier: BSD-2-Clause-Patent
- *
- **/
+  Diagnostics Protocol implementation for the MMC DXE driver
+
+  Copyright (c) 2011-2014, ARM Limited. All rights reserved.
+
+  SPDX-License-Identifier: BSD-2-Clause-Patent
+
+**/
 
 #include <Uefi.h>
 #include <Library/DebugLib.h>
@@ -21,6 +20,16 @@
 CHAR16* mLogBuffer = NULL;
 UINTN   mLogRemainChar = 0;
 
+/**
+
+  Initialize the diagnostic log by allocating memory for the log
+  buffer and setting the maximum buffer size.
+
+  @param   MaxBufferChar  The maximum number of CHAR16 characters the log buffer can hold.
+
+  @retval  A pointer to the allocated log buffer.
+
+**/
 CHAR16*
 DiagnosticInitLog (
   UINTN MaxBufferChar
@@ -31,6 +40,15 @@ DiagnosticInitLog (
   return mLogBuffer;
 }
 
+/**
+
+  Log a diagnostic string by copying it to the log buffer.
+
+  @param   Str  A pointer to the constant CHAR16 string to be logged.
+
+  @retval  The length of the logged string.
+
+**/
 UINTN
 DiagnosticLog (
   CONST CHAR16* Str
@@ -47,6 +65,14 @@ DiagnosticLog (
   }
 }
 
+/**
+
+  Generate a random buffer by filling it with pseudo-random data.
+
+  @param  Buffer      A pointer to the buffer where the generated data will be stored.
+  @param  BufferSize  The size of the buffer in bytes.
+
+**/
 VOID
 GenerateRandomBuffer (
   VOID* Buffer,
@@ -62,6 +88,17 @@ GenerateRandomBuffer (
   }
 }
 
+/**
+
+  Compares two buffers by iterating through each 64-bit element in the buffers.
+
+  @param  BufferA     A pointer to the first buffer to compare.
+  @param  BufferB     A pointer to the second buffer to compare.
+  @param  BufferSize  The size of the buffers in bytes.
+
+  @retval  TRUE if the buffers are equal, FALSE if a mismatch is found.
+
+**/
 BOOLEAN
 CompareBuffer (
   VOID  *BufferA,
@@ -85,6 +122,19 @@ CompareBuffer (
   return TRUE;
 }
 
+/**
+  Performs a read/write data test on an MMC device.
+
+  @param  MmcHostInstance  A pointer to the MMC host instance.
+  @param  Lba              The logical block address to perform the test on.
+  @param  BufferSize       The size of the buffer in bytes.
+
+  @retval EFI_SUCCESS            The test completes successfully.
+  @retval EFI_NO_MEDIA           No media (MMC device) is detected.
+  @retval EFI_NOT_READY          The MMC device is not in the transfer state.
+  @retval EFI_INVALID_PARAMETER  The written data does not match the read data.
+
+**/
 EFI_STATUS
 MmcReadWriteDataTest (
   MMC_HOST_INSTANCE *MmcHostInstance,
@@ -168,6 +218,22 @@ MmcReadWriteDataTest (
   return EFI_SUCCESS;
 }
 
+/**
+  Runs diagnostics tests on the MMC driver for the specified controller handle.
+
+  @param This              A pointer to the EFI_DRIVER_DIAGNOSTICS_PROTOCOL instance.
+  @param ControllerHandle  The handle of the controller to run diagnostics on.
+  @param ChildHandle       The handle of the child controller to run diagnostics on (optional).
+  @param DiagnosticType    The type of diagnostics to run.
+  @param Language          The language code (only English is supported).
+  @param ErrorType         The type of error encountered during diagnostics (if any).
+  @param BufferSize        The size of the diagnostic buffer.
+  @param Buffer            The diagnostic buffer.
+
+  @retval EFI_SUCCESS            The diagnostics completed successfully.
+  @retval EFI_INVALID_PARAMETER  One or more parameters are invalid.
+  @retval EFI_UNSUPPORTED        The specified language or controller is not supported.
+*/
 EFI_STATUS
 EFIAPI
 MmcDriverDiagnosticsRunDiagnostics (

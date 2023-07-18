@@ -11,6 +11,10 @@
 
 #include "RamFlash.h"
 
+/**
+  Convert the pointers from RAM to Flash memory.
+
+**/
 VOID
 RamFlashConvertPointers (
   VOID

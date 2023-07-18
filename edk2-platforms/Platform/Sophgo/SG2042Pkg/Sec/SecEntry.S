@@ -5,7 +5,6 @@
 
  */
 
-#include <RiscVImpl.h>
 #include "SecMain.h"
 
 .text

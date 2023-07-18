@@ -1,0 +1,28 @@
+## @file
+#  SiFive silicon package definitions
+#
+#  Copyright (c) 2019, Hewlett Packard Enterprise Development LP. All rights reserved.<BR>
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+##
+
+[Defines]
+  DEC_SPECIFICATION              = 0x0001001b
+  PACKAGE_NAME                   = SophgoSiliconPkg
+  PACKAGE_GUID                   = 576912B2-7077-4B78-A934-4C133FEB20BB
+  PACKAGE_VERSION                = 1.0
+
+[Includes]
+  Include                        # Root include for the package
+
+[LibraryClasses]
+
+[Guids]
+  gEfiSophgoSiliconTokenSpaceGuid  = {0x53C67518, 0xEA37, 0x01C1, { 0xF1, 0x94, 0x38, 0xC5, 0x2D, 0x59, 0xC1, 0x40 }}
+
+[Protocols]
+
+[PcdsFixedAtBuild]
+  # SG2042 Coreplex GUID
+  gEfiSophgoSiliconTokenSpaceGuid.PcdSophgoSG2042CoreplexGuid |{0x07, 0xBE, 0xA2, 0xE3, 0x80, 0x92, 0x7C, 0xA6, 0x0C, 0xDA, 0x2B, 0x2D, 0x4D, 0x15, 0x6B, 0xD6}|VOID*|0x00001003
